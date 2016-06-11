@@ -4,7 +4,7 @@ using System.Collections;
 public class OverlayTester : MonoBehaviour
 {
     public HeadlessVROverlay Overlay;
-    public Texture2D TestTexture;
+    public Texture TestTexture;
 	void Start ()
     {
         if (Overlay != null && TestTexture != null)

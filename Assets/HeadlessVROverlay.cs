@@ -5,7 +5,7 @@ using System.Collections;
 public class HeadlessVROverlay : MonoBehaviour
 {
 
-    public Texture2D OverlayTexture
+    public Texture OverlayTexture
     {
         get { return overlayTexture; }
         set {
@@ -14,7 +14,7 @@ public class HeadlessVROverlay : MonoBehaviour
             }
     }
 
-    private Texture2D overlayTexture;
+    private Texture overlayTexture;
 
     private SteamVR_Overlay overlay
     {
@@ -34,7 +34,7 @@ public class HeadlessVROverlay : MonoBehaviour
 
     private SteamVR_Overlay _overlay;
     private MeshRenderer _meshRenderer;
-    public void SetTexture(Texture2D tex)
+    public void SetTexture(Texture tex)
     {
         if (overlay != null)
         {
@@ -45,7 +45,6 @@ public class HeadlessVROverlay : MonoBehaviour
             meshRenderer.material.mainTexture = tex;
         }
 
-        gameObject.transform.localScale = new Vector3(9f * (tex.width / tex.height), 9f, 1f);
         gameObject.transform.localScale = new Vector3(9f * (tex.width / tex.height), 9f, 1f); // This is just used to change the demo Quad and doesn't effect VR overlay usage AFAIK.
     }
 
