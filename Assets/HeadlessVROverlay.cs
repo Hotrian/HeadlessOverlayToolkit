@@ -46,6 +46,7 @@ public class HeadlessVROverlay : MonoBehaviour
         }
 
         gameObject.transform.localScale = new Vector3(9f * (tex.width / tex.height), 9f, 1f);
+        gameObject.transform.localScale = new Vector3(9f * (tex.width / tex.height), 9f, 1f); // This is just used to change the demo Quad and doesn't effect VR overlay usage AFAIK.
     }
 
     void Start ()
