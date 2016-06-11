@@ -13,6 +13,7 @@ This was tested using [the null driver](https://www.reddit.com/r/SteamVR/comment
 If this does not work properly in VR with an actual HMD, check out lines 110-136 of SteamVR_Overlay.cs, as this is where the problem likely lies.
 
 In the event an HMD is not detected, an "Overlay Reference Point" is spawned to anchor the overlays somewhere in the world in relation to the camera.
-If you want this attached to an HMD or the controllers, I suspect you'll want to look into SteamVR_TrackedObject.cs, but as I am testing with the null driver this doesn't seem to work properly.
+
+If you want this attached to an HMD or the controllers, I suspect you'll want to look into [SetOverlayTransformTrackedDeviceRelative](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetOverlayTransformTrackedDeviceRelative) or SteamVR_TrackedObject.cs, but as I am testing with the null driver these doesn't seem to work properly.
 
 There is probably still a lot to be done for proper Overlays, but this should give everyone a good jump start.
