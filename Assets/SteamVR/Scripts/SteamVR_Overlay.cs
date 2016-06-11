@@ -107,7 +107,7 @@ public class SteamVR_Overlay : MonoBehaviour
 			overlay.SetOverlayMouseScale(handle, ref vecMouseScale);
 
 			var vrcam = SteamVR_Render.Top();
-			if (vrcam != null && vrcam.origin != null)
+			if (vrcam != null && vrcam.origin != null) // Currently untested code, but this is how SteamVR_Overlay.cs did it by default, so I assume this works
 			{
 				var offset = new SteamVR_Utils.RigidTransform(vrcam.origin, transform);
 				offset.pos.x /= vrcam.origin.localScale.x;
@@ -119,8 +119,12 @@ public class SteamVR_Overlay : MonoBehaviour
 				var t = offset.ToHmdMatrix34();
 				overlay.SetOverlayTransformAbsolute(handle, SteamVR_Render.instance.trackingSpace, ref t);
             }
-            else if (overlayReference != null)// HMD not found :( Works with the null driver though
+            else // HMD not found :( Works with the null driver though
             {
+                if (overlayReference == null)
+                {
+                    overlayReference = new GameObject("Overlay reference point");
+                }
                 var offset = new SteamVR_Utils.RigidTransform(overlayReference.transform, transform);
                 offset.pos.x /= overlayReference.transform.localScale.x;
                 offset.pos.y /= overlayReference.transform.localScale.y;
@@ -129,12 +133,6 @@ public class SteamVR_Overlay : MonoBehaviour
                 offset.pos.z += distance;
                 var t = offset.ToHmdMatrix34();
                 overlay.SetOverlayTransformTrackedDeviceRelative(handle, 0, ref t);
-            }
-            else
-            {
-                overlayReference = new GameObject("Overlay reference point");
-                //gameObject.transform.parent = overlayReference.transform;
-                return;
             }
 
             overlay.SetOverlayInputMethod(handle, inputMethod);
