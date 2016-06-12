@@ -5,7 +5,7 @@ Specifically, this code creates [Overlay](https://github.com/ValveSoftware/openv
 The demo scene has two overlays. Only one overlay can be 'High Quality' at a time [as defined by the OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay).
 However, neither is in HQ mode by default. This can easily be changed by changing [any of these three settings](http://i.imgur.com/6SM7aab.png).
 
-Here [is an example of the VR output](http://i.imgur.com/MMpTG20.jpg) as produced by the null driver, and here [is an example of the application itself](http://i.imgur.com/X1ju7lj.png).
+Here [is an example of the VR output](http://i.imgur.com/1rPx2HI.png) as produced by the null driver, and here [is an example of the application itself](http://i.imgur.com/vKutqqA.png).
 Note that it is not required to draw to the Unity display, this was done for demo purposes only. The Unity display can be used to display completely different information than is shown in the Overlay if desired, just remove or disable the MeshRenderer components from the Overlay gameobjects, and they will no longer show in Unity.
 
 This was tested using [the null driver](https://www.reddit.com/r/SteamVR/comments/4i40k7/cant_get_steamvr_to_work_with_null_driver/d2uxgh5). It should work perfectly with a Vive HMD, but this hasn't been tested.
