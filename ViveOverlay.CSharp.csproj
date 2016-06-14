@@ -58,12 +58,6 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -78,11 +72,13 @@
     <Compile Include="Assets\DesktopCameraScript.cs" />
     <Compile Include="Assets\HeadlessVROverlay.cs" />
     <Compile Include="Assets\OverlayTester.cs" />
+    <Compile Include="Assets\OverlayTester_Twitch.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraFlip.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraMask.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Controller.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_ControllerManager.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Ears.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_ExternalCamera.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Frustum.cs" />
@@ -91,8 +87,12 @@
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Render.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_TrackedObject.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Utils.cs" />
+    <Compile Include="Assets\TwitchChatExample.cs" />
+    <Compile Include="Assets\TwitchIRC.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\SteamVR\Resources\SteamVR_Blit.shader" />
+    <None Include="Assets\SteamVR\Resources\SteamVR_BlitFlip.shader" />
     <None Include="Assets\SteamVR\Resources\SteamVR_HiddenArea.shader" />
     <None Include="Assets\SteamVR\readme.txt" />
   </ItemGroup>
