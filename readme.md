@@ -19,3 +19,15 @@ In the event an HMD is not detected, an "Overlay Reference Point" is spawned to 
 If you want this attached to the controllers, I suspect you'll want to look into [SetOverlayTransformTrackedDeviceRelative](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetOverlayTransformTrackedDeviceRelative) or SteamVR_TrackedObject.cs and check out [this section of SteamVR_Overlay.cs](https://github.com/Hotrian/ViveOverlay/blob/master/Assets/SteamVR/Scripts/SteamVR_Overlay.cs#L110-L136) and adjust accordingly.
 
 There is probably still a lot to be done for proper Overlays, but this should give everyone a good jump start.
+
+**If you want to run this headless:**
+
+Check out the [documentation here](http://docs.unity3d.com/Manual/CommandLineArguments.html) on how to run Unity headless.  There are a few different ways to do this.
+
+The basic steps to create a shortcut on Windows that launches headless are:
+- Build your Application
+- Create a Shortcut to your Application
+- Right Click the Shortcut > Properties
+- Put " -batchmode" at the end of the text in the 'Target' box
+- Launch your Shortcut, and your Application should launch hidden
+- You can crash your Application through the Task Manager, but be sure to add a graceful way to quit in the future :)
