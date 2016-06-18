@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{33C53DC9-11EE-988A-734D-B04B382A5AE5}</ProjectGuid>
+    <ProjectGuid>{0A44FD87-305E-6AA5-8803-843E7DC44199}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
     <FileAlignment>512</FileAlignment>
@@ -90,17 +90,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="ViveOverlay.CSharp.Plugins.csproj">
-      <Project>{CD56FE97-16B5-F599-EEA4-2EDDB94D5130}</Project>
-      <Name>ViveOverlay.CSharp.Plugins</Name>
+    <ProjectReference Include="HeadlessOverlayToolkit.CSharp.Plugins.csproj">
+      <Project>{471817E4-67A9-BA4F-2262-A19C91959061}</Project>
+      <Name>HeadlessOverlayToolkit.CSharp.Plugins</Name>
     </ProjectReference>
-    <ProjectReference Include="ViveOverlay.CSharp.csproj">
-      <Project>{A8E10A0E-CB0D-393A-E450-B43F58F18715}</Project>
-      <Name>ViveOverlay.CSharp</Name>
+    <ProjectReference Include="HeadlessOverlayToolkit.CSharp.csproj">
+      <Project>{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}</Project>
+      <Name>HeadlessOverlayToolkit.CSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Editor\OpenVrOverlayInspector.cs" />
+    <Compile Include="Assets\Editor\HOTK_OverlayInspector.cs" />
     <Compile Include="Assets\SteamVR\Editor\SteamVR_Editor.cs" />
     <Compile Include="Assets\SteamVR\Editor\SteamVR_Settings.cs" />
     <Compile Include="Assets\SteamVR\Editor\SteamVR_Update.cs" />
