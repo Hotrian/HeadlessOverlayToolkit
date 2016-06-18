@@ -120,7 +120,7 @@ public class OpenVrControllerManager
                        _rightIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
                     {
                         Debug.LogWarning("Only Found One Unassigned Controller, and Right was already assigned! Assigning To Left!");
-                        _rightIndex = slots[0];
+                        _leftIndex = slots[0];
                     }
                     else
                     {
