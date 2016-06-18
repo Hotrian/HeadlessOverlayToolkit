@@ -23,3 +23,15 @@ Note that these demos were taken during development, and do not necessarily repr
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
 - The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of OpenVrOverlay.cs.
 - Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
+
+**If you want to run this headless:**
+
+Check out the [documentation here](http://docs.unity3d.com/Manual/CommandLineArguments.html) on how to run Unity headless.  There are a few different ways to do this.
+
+The basic steps to create a shortcut on Windows that launches headless are:
+- Build your Application
+- Create a Shortcut to your Application
+- Right Click the Shortcut > Properties
+- Put " -batchmode" at the end of the text in the 'Target' box
+- Launch your Shortcut, and your Application should launch hidden
+- You can crash your Application through the Task Manager, but be sure to add a graceful way to quit in the future :)
