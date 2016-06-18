@@ -22,9 +22,7 @@ public class SteamVR_Overlay : MonoBehaviour
 	public Vector2 mouseScale = new Vector2(1, 1);
 	public Vector2 curvedRange = new Vector2(1, 2);
 
-    public static GameObject overlayReference; // Only used if HMD not found, like if you're using the null driver.
-
-    public VROverlayInputMethod inputMethod = VROverlayInputMethod.None;
+	public VROverlayInputMethod inputMethod = VROverlayInputMethod.None;
 
 	static public SteamVR_Overlay instance { get; private set; }
 
@@ -32,19 +30,15 @@ public class SteamVR_Overlay : MonoBehaviour
 
 	private ulong handle = OpenVR.k_ulOverlayHandleInvalid;
 
-	void OnEnable()
-    {
-#pragma warning disable CS0168 // Variable is declared but never used
-        var SVR = SteamVR.instance; // Init the SteamVR drivers
-#pragma warning restore CS0168 // Variable is declared but never used
-        var overlay = OpenVR.Overlay;
+    void OnEnable()
+	{
+		var overlay = OpenVR.Overlay;
 		if (overlay != null)
 		{
-			var error = overlay.CreateOverlay(key + gameObject.GetInstanceID(), gameObject.name, ref handle);
+			var error = overlay.CreateOverlay(key, gameObject.name, ref handle);
 			if (error != EVROverlayError.None)
 			{
-                Debug.Log(error.ToString());
-				//Debug.Log(overlay.GetOverlayErrorNameFromEnum(error));
+				Debug.Log(overlay.GetOverlayErrorNameFromEnum(error));
 				enabled = false;
 				return;
 			}
@@ -107,7 +101,7 @@ public class SteamVR_Overlay : MonoBehaviour
 			overlay.SetOverlayMouseScale(handle, ref vecMouseScale);
 
 			var vrcam = SteamVR_Render.Top();
-			if (vrcam != null && vrcam.origin != null) // Currently untested code, but this is how SteamVR_Overlay.cs did it by default, so I assume this works
+			if (vrcam != null && vrcam.origin != null)
 			{
 				var offset = new SteamVR_Utils.RigidTransform(vrcam.origin, transform);
 				offset.pos.x /= vrcam.origin.localScale.x;
@@ -118,24 +112,9 @@ public class SteamVR_Overlay : MonoBehaviour
 
 				var t = offset.ToHmdMatrix34();
 				overlay.SetOverlayTransformAbsolute(handle, SteamVR_Render.instance.trackingSpace, ref t);
-            }
-            else // HMD not found :( Works with the null driver though
-            {
-                if (overlayReference == null)
-                {
-                    overlayReference = new GameObject("Overlay reference point");
-                }
-                var offset = new SteamVR_Utils.RigidTransform(overlayReference.transform, transform);
-                offset.pos.x /= overlayReference.transform.localScale.x;
-                offset.pos.y /= overlayReference.transform.localScale.y;
-                offset.pos.z /= overlayReference.transform.localScale.z;
+			}
 
-                offset.pos.z += distance;
-                var t = offset.ToHmdMatrix34();
-                overlay.SetOverlayTransformTrackedDeviceRelative(handle, 0, ref t);
-            }
-
-            overlay.SetOverlayInputMethod(handle, inputMethod);
+			overlay.SetOverlayInputMethod(handle, inputMethod);
 
 			if (curved || antialias)
 				highquality = true;

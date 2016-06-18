@@ -70,9 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\DesktopCameraScript.cs" />
-    <Compile Include="Assets\HeadlessVROverlay.cs" />
-    <Compile Include="Assets\OverlayTester.cs" />
-    <Compile Include="Assets\OverlayTester_Twitch.cs" />
+    <Compile Include="Assets\OpenVrOverlay.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraFlip.cs" />
@@ -85,10 +83,9 @@
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_GameView.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Overlay.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Render.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_RenderModel.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_TrackedObject.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Utils.cs" />
-    <Compile Include="Assets\TwitchChatExample.cs" />
-    <Compile Include="Assets\TwitchIRC.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\SteamVR\Resources\SteamVR_Blit.shader" />
