@@ -1,3 +1,7 @@
+**This is the master branch for the Headless OpenVR Overlay project.**
+
+**Be sure to check out the experimental beta branch.**
+
 This is a stripped down version of the SteamVR Unity Plugin that includes just enough code to draw Overlays with Unity into OpenVR without throwing errors ;]
 
 Specifically, this code creates [Overlay](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::CreateOverlay)s which can appear right inside any VR application, not [DashboardOverlay](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::CreateDashboardOverlay)s which can only appear on the dashboard menu.
