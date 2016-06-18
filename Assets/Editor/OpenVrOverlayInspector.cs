@@ -28,11 +28,11 @@ public class OpenVrOverlayInspector : Editor
 
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Alpha"));
             var hqProperty = serializedObject.FindProperty("Highquality");
-            EditorGUILayout.PropertyField(hqProperty);
+            EditorGUILayout.PropertyField(hqProperty, new GUIContent() { text = "High Quality" });
             if (hqProperty.boolValue)
             {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("Antialias"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("Curved"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("Antialias"), new GUIContent() { text = "Anti Alias" });
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("Curved"), new GUIContent() { text = "Curved Display" });
             }
             EditorGUILayout.PropertyField(serializedObject.FindProperty("UvOffset"), true);
         }
@@ -52,7 +52,7 @@ public class OpenVrOverlayInspector : Editor
             if (overlay.AnchorDevice != OpenVrOverlay.AttachmentDevice.Screen &&
                 overlay.AnchorDevice != OpenVrOverlay.AttachmentDevice.World)
             {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorPoint"));
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorPoint"), new GUIContent() { text = "Base Position" });
             }
             EditorGUILayout.PropertyField(serializedObject.FindProperty("Scale"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorOffset"), new GUIContent() {text = "Offset"});
