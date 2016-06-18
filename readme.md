@@ -1,4 +1,4 @@
-**This is the master branch for the Headless OpenVR Overlay project.**
+**This is the master branch for the Headless Overlay Toolkit project.**
 
 **Be sure to check out the experimental beta branch.**
 
