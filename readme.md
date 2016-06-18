@@ -1,4 +1,4 @@
-**This is the beta branch for the Headless OpenVR Overlay project.**
+**This is the beta branch for the Headless Overlay Toolkit project.**
 
 This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that allows for a number of things not built into the default Overlay script. For instance, this Overlay script allows drawing multiple Overlays at once, as well as placing Overlays into the world.
 
