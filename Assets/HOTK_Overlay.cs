@@ -3,7 +3,7 @@ using UnityEngine;
 using Valve.VR;
 
 // ReSharper disable once CheckNamespace
-public class OpenVROverlay : MonoBehaviour
+public class HOTK_Overlay : MonoBehaviour
 {
     #region Custom Inspector Vars
     [NonSerialized] public bool ShowSettingsAppearance = true; 
@@ -39,7 +39,7 @@ public class OpenVROverlay : MonoBehaviour
     #endregion
 
     #region Interal Vars
-    public static OpenVROverlay HighQualityOverlay; // Only one Overlay can be HQ at a time
+    public static HOTK_Overlay HighQualityOverlay; // Only one Overlay can be HQ at a time
     public static string Key { get { return "unity:" + Application.companyName + "." + Application.productName; } }
     public static GameObject ZeroReference;
     public GameObject OverlayReference;
@@ -304,7 +304,7 @@ public class OpenVROverlay : MonoBehaviour
     {
         UpdateOverlayPosition();
 
-        var manager = OpenVRControllerManager.Instance;
+        var manager = HOTK_ControllerManager.Instance;
         _anchorDevice = device;
         AnchorDevice = device;
         _anchorPoint = point;
