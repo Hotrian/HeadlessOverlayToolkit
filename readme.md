@@ -17,7 +17,7 @@ Note that these demos were taken during development, and do not necessarily repr
 - Custom Inspector with Undo support.
 
 **Known Issues:**
-- SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers. You must manually assign them right now :(
+- SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers, so I wrote my own manager, OpenVrControllerManager.cs. My Controller Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis. If only one Controller is connected, and it isn't already assigned, it will be assigned to the right hand.
 
 **Additional Notes:**
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.

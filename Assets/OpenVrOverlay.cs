@@ -51,7 +51,7 @@ public class OpenVrOverlay : MonoBehaviour
     private Quaternion _anchorRotation = Quaternion.identity;
     private Quaternion _objectRotation = Quaternion.identity;
     private ulong _handle = OpenVR.k_ulOverlayHandleInvalid;
-    private SteamVR_TrackedObject _anchor;
+    private uint _anchor;
     private MeshRenderer MeshRenderer
     {
         get { return _meshRenderer ?? (_meshRenderer = GetComponent<MeshRenderer>()); }
@@ -135,10 +135,10 @@ public class OpenVrOverlay : MonoBehaviour
             overlay.SetOverlayMouseScale(_handle, ref vecMouseScale);
 
             var vrcam = SteamVR_Render.Top();
-            if (_anchor != null) // Attached to some SteamVR_TrackedObject
+            if (_anchor != OpenVR.k_unTrackedDeviceIndexInvalid) // Attached to some SteamVR_TrackedObject
             {
                 var t = UpdateOverlayPosition();
-                overlay.SetOverlayTransformTrackedDeviceRelative(_handle, (uint)_anchor.index, ref t);
+                overlay.SetOverlayTransformTrackedDeviceRelative(_handle, _anchor, ref t);
             }
             else if (AnchorDevice == AttachmentDevice.World) // Attached to World
             {
@@ -196,7 +196,7 @@ public class OpenVrOverlay : MonoBehaviour
     /// <param name="force"></param>
     private void UpdateOverlayRotation(bool force = false)
     {
-        if (_anchor == null) return;
+        if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid) return;
         if (OverlayReference == null) return;
         if (!force && _objectRotation == gameObject.transform.localRotation) return;
         _objectRotation = gameObject.transform.localRotation;
@@ -210,7 +210,7 @@ public class OpenVrOverlay : MonoBehaviour
     private HmdMatrix34_t UpdateOverlayPosition()
     {
         if (OverlayReference == null) OverlayReference = new GameObject("Overlay Reference") {hideFlags = HideFlags.HideInHierarchy};
-        if (_anchor == null)
+        if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid)
         {
             var offset = new SteamVR_Utils.RigidTransform(OverlayReference.transform, transform);
             offset.pos.x /= OverlayReference.transform.localScale.x;
@@ -304,7 +304,7 @@ public class OpenVrOverlay : MonoBehaviour
     {
         UpdateOverlayPosition();
 
-        var controllerManager = FindObjectOfType<SteamVR_ControllerManager>();
+        var manager = OpenVrControllerManager.Instance;
         _anchorDevice = device;
         AnchorDevice = device;
         _anchorPoint = point;
@@ -316,21 +316,21 @@ public class OpenVrOverlay : MonoBehaviour
         switch (device)
         {
             case AttachmentDevice.Screen:
-                _anchor = null;
+                _anchor = OpenVR.k_unTrackedDeviceIndexInvalid;
                 OverlayReference.transform.localPosition = -offset;
                 OverlayReference.transform.localRotation = Quaternion.identity;
                 break;
             case AttachmentDevice.World:
-                _anchor = null;
+                _anchor = OpenVR.k_unTrackedDeviceIndexInvalid;
                 OverlayReference.transform.localPosition = -offset;
                 OverlayReference.transform.localRotation = Quaternion.identity;
                 break;
             case AttachmentDevice.LeftController:
-                _anchor = controllerManager.left.GetComponent<SteamVR_TrackedObject>();
+                _anchor = manager.LeftIndex;
                 AttachToController(point, offset);
                 break;
             case AttachmentDevice.RightController:
-                _anchor = controllerManager.right.GetComponent<SteamVR_TrackedObject>();
+                _anchor = manager.RightIndex;
                 AttachToController(point, offset);
                 break;
             default:
