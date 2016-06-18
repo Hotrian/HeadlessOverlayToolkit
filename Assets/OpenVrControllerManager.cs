@@ -1,7 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
-using System.ComponentModel;
 using Valve.VR;
 
 public class OpenVrControllerManager
@@ -10,6 +8,7 @@ public class OpenVrControllerManager
     {
         get { return _instance ?? (_instance = new OpenVrControllerManager()); }
     }
+
     public uint LeftIndex
     {
         get
@@ -27,23 +26,28 @@ public class OpenVrControllerManager
         }
     }
 
-
     private static OpenVrControllerManager _instance;
 
-    private uint _leftIndex;
-    private uint _rightIndex;
+    private uint _leftIndex = OpenVR.k_unTrackedDeviceIndexInvalid;
+    private uint _rightIndex = OpenVR.k_unTrackedDeviceIndexInvalid;
 
     public void FindControllers()
     {
         var system = OpenVR.System;
+        if (system == null)
+        {
+            Debug.LogWarning("OpenVR System not found.");
+            return;
+        }
+
         if (_leftIndex != OpenVR.k_unTrackedDeviceIndexInvalid && system.GetTrackedDeviceClass(_leftIndex) == ETrackedDeviceClass.Controller &&
             _rightIndex != OpenVR.k_unTrackedDeviceIndexInvalid && system.GetTrackedDeviceClass(_rightIndex) == ETrackedDeviceClass.Controller)
         {
             // Assume we are still connected to the controllers..
             return;
         }
+
         //Debug.Log("Searching for Controllers..");
-        if (system == null) return;
         _leftIndex = system.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
         _rightIndex = system.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
 
@@ -70,14 +74,14 @@ public class OpenVrControllerManager
                 {
                     continue;
                 }
-                //Debug.Log("Found Right!");
+                //Debug.Log("Found Left!");
                 _leftIndex = i;
                 break;
             }
         }
         else if (_leftIndex == OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex == OpenVR.k_unTrackedDeviceIndexInvalid)
         {
-            Debug.LogWarning("SteamVR Reports No Controllers..! Deep searching..");
+            Debug.LogWarning("SteamVR Reports No Assigned Controllers..! Searching..");
             var foundUnassigned = 0;
             var slots = new uint[2];
             for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
