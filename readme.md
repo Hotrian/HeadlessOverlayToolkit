@@ -1,17 +1,20 @@
-This is a stripped down version of the SteamVR Unity Plugin that includes just enough code to draw Overlays with Unity into OpenVR without throwing errors ;]
+**This is the beta branch for the Headless OpenVR Overlay project.**
 
-Specifically, this code creates [Overlay](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::CreateOverlay)s which can appear right inside any VR application, not [DashboardOverlay](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::CreateDashboardOverlay)s which can only appear on the dashboard menu.
+This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that allows for a number of things not built into the default Overlay script. For instance, this Overlay script allows drawing multiple overlays at once, as well as placing Overlays into the world.
 
-The demo scene has two overlays. Only one overlay can be 'High Quality' at a time [as defined by the OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay).
-However, neither is in HQ mode by default. This can easily be changed by changing [any of these three settings](http://i.imgur.com/6SM7aab.png).
+**Demos:**
 
-Here [is an example of the VR output](http://imgur.com/a/nU3fS) as produced by the HTC Vive, and here [is an example of the application itself](http://i.imgur.com/vKutqqA.png).
-Note that it is not required to draw to the Unity display, this was done for demo purposes only. The Unity display can be used to display completely different information than is shown in the Overlay if desired, just remove or disable the MeshRenderer components from the Overlay gameobjects, and they will no longer show in Unity.
+Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
+- [Here is a Youtube Video](https://www.youtube.com/watch?v=q1PTaL1Sx9I) that shows some of the default Controller attachment points.
+- [Here is a Youtube Video](https://www.youtube.com/watch?v=nB19zl-_DlM) that gives an example of these Overlays in TiltBrush.
 
-This was tested using [the null driver](https://www.reddit.com/r/SteamVR/comments/4i40k7/cant_get_steamvr_to_work_with_null_driver/d2uxgh5) and the HTC Vive, with Unity 5.3.5f1.
+**Features:**
+- Draw Overlays, regardless of the current VR application.
+- Easily attach Overlays to the Screen, a Controller, or drop one in the World.
+- Easily snap Controller attached Overlays to a set "Base Position".
+- Offset Overlays positionally and rotationally.
+- Draw Multiple Overlays Simultaneously (only one Overlay can be 'High Quality').
 
-In the event an HMD is not detected, an "Overlay Reference Point" is spawned to anchor the overlays somewhere in relation to the camera, however these Overlays will be stuck to the screen.
+**Known Issues:**
+- SteamVR_ControllerManager doesn't correctly auto-identify controllers. You must manually assign them right now :(
 
-If you want this attached to the controllers, I suspect you'll want to look into [SetOverlayTransformTrackedDeviceRelative](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetOverlayTransformTrackedDeviceRelative) or SteamVR_TrackedObject.cs and check out [this section of SteamVR_Overlay.cs](https://github.com/Hotrian/ViveOverlay/blob/master/Assets/SteamVR/Scripts/SteamVR_Overlay.cs#L110-L136) and adjust accordingly.
-
-There is probably still a lot to be done for proper Overlays, but this should give everyone a good jump start.
