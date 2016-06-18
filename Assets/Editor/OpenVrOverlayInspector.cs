@@ -2,9 +2,9 @@
 using UnityEditor;
 using Valve.VR;
 
-[CustomEditor(typeof(OpenVrOverlay))]
+[CustomEditor(typeof(OpenVROverlay))]
 // ReSharper disable once CheckNamespace
-public class OpenVrOverlayInspector : Editor
+public class OpenVROverlayInspector : Editor
 {
     private static GUIStyle _boldFoldoutStyle;
 
@@ -19,7 +19,7 @@ public class OpenVrOverlayInspector : Editor
             };
         }
 
-        var overlay = (OpenVrOverlay)target;
+        var overlay = (OpenVROverlay)target;
 
         overlay.ShowSettingsAppearance = EditorGUILayout.Foldout(overlay.ShowSettingsAppearance, "Appearance Settings", _boldFoldoutStyle);
         if (overlay.ShowSettingsAppearance)
@@ -49,8 +49,8 @@ public class OpenVrOverlayInspector : Editor
         if (overlay.ShowSettingsAttachment)
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorDevice"), new GUIContent() { text = "Anchor Point" });
-            if (overlay.AnchorDevice != OpenVrOverlay.AttachmentDevice.Screen &&
-                overlay.AnchorDevice != OpenVrOverlay.AttachmentDevice.World)
+            if (overlay.AnchorDevice != OpenVROverlay.AttachmentDevice.Screen &&
+                overlay.AnchorDevice != OpenVROverlay.AttachmentDevice.World)
             {
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorPoint"), new GUIContent() { text = "Base Position" });
             }

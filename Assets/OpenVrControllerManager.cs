@@ -2,11 +2,11 @@
 using UnityEngine;
 using Valve.VR;
 
-public class OpenVrControllerManager
+public class OpenVRControllerManager
 {
-    public static OpenVrControllerManager Instance
+    public static OpenVRControllerManager Instance
     {
-        get { return _instance ?? (_instance = new OpenVrControllerManager()); }
+        get { return _instance ?? (_instance = new OpenVRControllerManager()); }
     }
 
     public uint LeftIndex
@@ -26,7 +26,7 @@ public class OpenVrControllerManager
         }
     }
 
-    private static OpenVrControllerManager _instance;
+    private static OpenVRControllerManager _instance;
 
     private uint _leftIndex = OpenVR.k_unTrackedDeviceIndexInvalid;
     private uint _rightIndex = OpenVR.k_unTrackedDeviceIndexInvalid;
