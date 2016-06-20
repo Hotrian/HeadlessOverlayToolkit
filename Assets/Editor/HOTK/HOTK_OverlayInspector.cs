@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using Valve.VR;
 
 [CustomEditor(typeof(HOTK_Overlay))]
-// ReSharper disable once CheckNamespace
 public class HOTK_OverlayInspector : Editor
 {
     private static GUIStyle _boldFoldoutStyle;
@@ -25,8 +23,23 @@ public class HOTK_OverlayInspector : Editor
         if (overlay.ShowSettingsAppearance)
         {
             EditorGUILayout.PropertyField(serializedObject.FindProperty("OverlayTexture"), new GUIContent() {text = "Texture"});
+            
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("AnimateOnGaze"));
+            if (overlay.AnimateOnGaze == HOTK_Overlay.AnimationType.Alpha)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("Alpha"), new GUIContent() { text = "Alpha Start" });
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("Alpha2"), new GUIContent() { text = "Alpha End" });
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("AnimateSpeed"), new GUIContent() { text = "Alpha Speed" });
+            }
+            else EditorGUILayout.PropertyField(serializedObject.FindProperty("Alpha"));
+            if (overlay.AnimateOnGaze == HOTK_Overlay.AnimationType.Scale)
+            {
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("Scale"), new GUIContent() { text = "Scale Start" });
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("Scale2"), new GUIContent() { text = "Scale End" });
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("AnimateSpeed"), new GUIContent() { text = "Scale Speed" });
+            }
+            else EditorGUILayout.PropertyField(serializedObject.FindProperty("Scale"));
 
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("Alpha"));
             var hqProperty = serializedObject.FindProperty("Highquality");
             EditorGUILayout.PropertyField(hqProperty, new GUIContent() { text = "High Quality" });
             if (hqProperty.boolValue)
@@ -54,7 +67,6 @@ public class HOTK_OverlayInspector : Editor
             {
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorPoint"), new GUIContent() { text = "Base Position" });
             }
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("Scale"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("AnchorOffset"), new GUIContent() {text = "Offset"});
         }
         serializedObject.ApplyModifiedProperties();

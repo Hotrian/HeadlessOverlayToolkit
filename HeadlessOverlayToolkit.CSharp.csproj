@@ -69,9 +69,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\DesktopCameraScript.cs" />
-    <Compile Include="Assets\HOTK_ControllerManager.cs" />
-    <Compile Include="Assets\HOTK_Overlay.cs" />
+    <Compile Include="Assets\HOTK\Example Content\DesktopCameraScript.cs" />
+    <Compile Include="Assets\HOTK\HOTK_Overlay.cs" />
+    <Compile Include="Assets\HOTK\HOTK_TrackedDevice.cs" />
+    <Compile Include="Assets\HOTK\HOTK_TrackedDeviceManager.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraFlip.cs" />
