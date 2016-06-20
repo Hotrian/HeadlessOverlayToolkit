@@ -7,6 +7,7 @@ This is a stripped down version of the SteamVR Unity Plugin with a custom Overla
 Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
 - [Here is a Youtube Video](https://www.youtube.com/watch?v=q1PTaL1Sx9I) that shows some of the default Controller attachment points.
 - [Here is a Youtube Video](https://www.youtube.com/watch?v=nB19zl-_DlM) that gives an example of these Overlays in TiltBrush.
+- [Here is a GIF](https://gfycat.com/SoftJointFrigatebird) that very quickly demonstrates an AlphaAndScale animation on Gaze.
 
 **Features:**
 - Draw Overlays, regardless of the current VR application.
