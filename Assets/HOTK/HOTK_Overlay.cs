@@ -49,73 +49,56 @@ public class HOTK_Overlay : MonoBehaviour
     #endregion
 
     #region Interal Vars
-    public static HOTK_Overlay HighQualityOverlay; // Only one Overlay can be HQ at a time
+    public static HOTK_Overlay HighQualityOverlay;  // Only one Overlay can be HQ at a time
     public static string Key { get { return "unity:" + Application.companyName + "." + Application.productName; } }
-    public static GameObject ZeroReference;
-    public GameObject OverlayReference;
+    public static GameObject ZeroReference;         // Used to get a reference to the world 0, 0, 0 point
+    public GameObject OverlayReference;             // Used to get a reference for the Overlay's transform
+    
+    private Texture _overlayTexture;                    // These are used to cache values and check for changes
+    private AttachmentDevice _anchorDevice;             // These are used to cache values and check for changes
+    private AttachmentPoint _anchorPoint;               // These are used to cache values and check for changes
+    private Vector3 _anchorOffset = Vector3.zero;       // These are used to cache values and check for changes
+    private Vector3 _objectPosition = Vector3.zero;     // These are used to cache values and check for changes
+    private Quaternion _anchorRotation = Quaternion.identity;   // These are used to cache values and check for changes
+    private Quaternion _objectRotation = Quaternion.identity;   // These are used to cache values and check for changes
 
-    private Texture _overlayTexture;
-    private float _alpha; // Only used for AnimateOnGaze
-    private float _scale; // Only used for AnimateOnGaze
-    private AttachmentDevice _anchorDevice;
-    private AttachmentPoint _anchorPoint;
-    private Vector3 _anchorOffset = Vector3.zero;
-    private Quaternion _anchorRotation = Quaternion.identity;
-    private Vector3 _objectPosition = Vector3.zero;
-    private Quaternion _objectRotation = Quaternion.identity;
-    private ulong _handle = OpenVR.k_ulOverlayHandleInvalid;
-    private uint _anchor;
-    private HOTK_TrackedDevice _hmdTracker;
+    private ulong _handle = OpenVR.k_ulOverlayHandleInvalid;    // caches a reference to our Overlay handle
+    private HOTK_TrackedDevice _hmdTracker;                     // caches a reference to the HOTK_TrackedDevice that is tracking the HMD
+    private uint _anchor;   // caches a HOTK_TrackedDevice ID for anchoring the Overlay, if applicable
+    private float _alpha;   // Only used for AnimateOnGaze
+    private float _scale;   // Only used for AnimateOnGaze
+
+    // Caches our MeshRenderer, if applicable
     private MeshRenderer MeshRenderer
     {
         get { return _meshRenderer ?? (_meshRenderer = GetComponent<MeshRenderer>()); }
     }
     private MeshRenderer _meshRenderer;
     #endregion
-
-    public void Start()
-    {
-        _scale = Scale;
-        _alpha = Alpha;
-        if (_hmdTracker != null) return;
-        // Try to find an HOTK_TrackedDevice that is active and tracking the HMD
-        foreach (var g in FindObjectsOfType<HOTK_TrackedDevice>().Where(g => g.enabled && g.Type == HOTK_TrackedDevice.EType.HMD))
-        {
-            _hmdTracker = g;
-            break;
-        }
-    }
-
+    
     /// <summary>
     /// Check if anything has changed with the Overlay, and update the OpenVR system as necessary.
     /// </summary>
     public void Update()
     {
         var changed = false;
-        if (_overlayTexture != OverlayTexture)
-        {
-            _overlayTexture = OverlayTexture;
-            if (MeshRenderer != null) MeshRenderer.material.mainTexture = OverlayTexture; // If our texture changes, change our MeshRenderer's texture also. The MeshRenderer is optional.
-            changed = true;
-        }
-        // If the AnchorDevice changes, or our Attachment Point or Offset changes, reattach the overlay
-        if (_anchorDevice != AnchorDevice || _anchorPoint != AnchorPoint || _anchorOffset != AnchorOffset)
-        {
-            AttachTo(AnchorDevice, Scale, AnchorOffset, AnchorPoint);
-            changed = true;
-        }
+        // Check if our Overlay's Texture has changed
+        CheckOverlayTextureChanged(ref changed);
+        // Check if our Overlay's Anchor has changed
+        CheckOverlayAnchorChanged(ref changed);
         // Check if our Overlay's rotation or position changed
         CheckOverlayRotationChanged(ref changed);
         CheckOverlayPositionChanged(ref changed);
-
-        // Check if the Overlay is being Gazed at, or has been recently and is still animating
+        // Check if our Overlay is being Gazed at, or has been recently and is still animating
         if (AnimateOnGaze != AnimationType.None) UpdateGaze(ref changed);
-
-        // Update our Overlay if necessary
+        // Update our Overlay if anything has changed
         if (changed)
             UpdateOverlay();
     }
 
+    /// <summary>
+    /// When enabled, Create the Overlay and reset cached values.
+    /// </summary>
     public void OnEnable()
     {
         #pragma warning disable 0168
@@ -124,6 +107,9 @@ public class HOTK_Overlay : MonoBehaviour
         #pragma warning restore 0168
         var overlay = OpenVR.Overlay;
         if (overlay == null) return;
+        // Cache the default value on start
+        _scale = Scale;
+        _alpha = Alpha;
         _objectRotation = Quaternion.identity;
         _objectPosition = Vector3.zero;
         var error = overlay.CreateOverlay(Key + gameObject.GetInstanceID(), gameObject.name, ref _handle);
@@ -132,6 +118,9 @@ public class HOTK_Overlay : MonoBehaviour
         enabled = false;
     }
 
+    /// <summary>
+    /// When disabled, Destroy the Overlay.
+    /// </summary>
     public void OnDisable()
     {
         if (_handle == OpenVR.k_ulOverlayHandleInvalid) return;
@@ -171,9 +160,10 @@ public class HOTK_Overlay : MonoBehaviour
     /// <param name="point"></param>
     public void AttachTo(AttachmentDevice device, float scale, Vector3 offset, AttachmentPoint point = AttachmentPoint.Center)
     {
+        // Update Overlay Anchor position
         GetOverlayPosition();
-
-        var manager = HOTK_TrackedDeviceManager.Instance;
+        
+        // Update cached values
         _anchorDevice = device;
         AnchorDevice = device;
         _anchorPoint = point;
@@ -182,6 +172,7 @@ public class HOTK_Overlay : MonoBehaviour
         AnchorOffset = offset;
         Scale = scale;
 
+        // Attach Overlay
         switch (device)
         {
             case AttachmentDevice.Screen:
@@ -195,11 +186,11 @@ public class HOTK_Overlay : MonoBehaviour
                 OverlayReference.transform.localRotation = Quaternion.identity;
                 break;
             case AttachmentDevice.LeftController:
-                _anchor = manager.LeftIndex;
+                _anchor = HOTK_TrackedDeviceManager.Instance.LeftIndex;
                 AttachToController(point, offset);
                 break;
             case AttachmentDevice.RightController:
-                _anchor = manager.RightIndex;
+                _anchor = HOTK_TrackedDeviceManager.Instance.RightIndex;
                 AttachToController(point, offset);
                 break;
             default:
@@ -214,10 +205,8 @@ public class HOTK_Overlay : MonoBehaviour
     /// <param name="offset"></param>
     private void AttachToController(AttachmentPoint point, Vector3 offset)
     {
-        // Shift Offset for default position
         float dx = offset.x, dy = offset.y, dz = offset.z;
-        var rot = Quaternion.identity;
-        Vector3 pos;
+        // Offset our position based on the Attachment Point
         switch (point)
         {
             case AttachmentPoint.Center:
@@ -259,7 +248,10 @@ public class HOTK_Overlay : MonoBehaviour
                 throw new ArgumentOutOfRangeException("point", point, null);
         }
 
+        Vector3 pos;
+        var rot = Quaternion.identity;
         // Apply position and rotation to Overlay anchor
+        // Some Axis are flipped here to reorient the offset
         switch (point)
         {
             case AttachmentPoint.FlatAbove:
@@ -298,6 +290,18 @@ public class HOTK_Overlay : MonoBehaviour
     }
 
     /// <summary>
+    /// Check if our Overlay's Anchor has changed, and AttachTo it if necessary.
+    /// </summary>
+    /// <param name="changed"></param>
+    private void CheckOverlayAnchorChanged(ref bool changed)
+    {
+        // If the AnchorDevice changes, or our Attachment Point or Offset changes, reattach the overlay
+        if (_anchorDevice == AnchorDevice && _anchorPoint == AnchorPoint && _anchorOffset == AnchorOffset) return;
+        AttachTo(AnchorDevice, Scale, AnchorOffset, AnchorPoint);
+        changed = true;
+    }
+
+    /// <summary>
     /// Update the Overlay's Position if necessary.
     /// </summary>
     /// <returns></returns>
@@ -316,18 +320,39 @@ public class HOTK_Overlay : MonoBehaviour
     /// <param name="force"></param>
     private void CheckOverlayRotationChanged(ref bool changed, bool force = false)
     {
-        bool change = _objectRotation != gameObject.transform.localRotation;
-        if (change)
+        var gameObjectChanged = _objectRotation != gameObject.transform.localRotation;
+        if (gameObjectChanged)
         {
             _objectRotation = gameObject.transform.localRotation;
             changed = true;
         }
         if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid || OverlayReference == null) return; // This part below is only for Controllers
-        if (!force && !change && OverlayReference.transform.localRotation == _anchorRotation * _objectRotation) return;
+        if (!force && !gameObjectChanged && OverlayReference.transform.localRotation == _anchorRotation * _objectRotation) return;
         OverlayReference.transform.localRotation = _anchorRotation * _objectRotation;
         changed = true;
     }
 
+    /// <summary>
+    /// Update the Overlay's Texture if necessary.
+    /// </summary>
+    /// <param name="changed"></param>
+    private void CheckOverlayTextureChanged(ref bool changed)
+    {
+        if (_overlayTexture == OverlayTexture) return;
+        _overlayTexture = OverlayTexture;
+        changed = true;
+
+        if (MeshRenderer != null) // If our texture changes, change our MeshRenderer's texture also. The MeshRenderer is optional.
+            MeshRenderer.material.mainTexture = OverlayTexture; 
+    }
+
+    /// <summary>
+    /// Compute a given Ray and determine if it hit an Overlay
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="direction"></param>
+    /// <param name="results"></param>
+    /// <returns></returns>
     private bool ComputeIntersection(Vector3 source, Vector3 direction, ref IntersectionResults results)
     {
         var overlay = OpenVR.Overlay;
@@ -358,6 +383,26 @@ public class HOTK_Overlay : MonoBehaviour
         results.UVs = new Vector2(output.vUVs.v0, output.vUVs.v1);
         results.Distance = output.fDistance;
         return true;
+    }
+
+    /// <summary>
+    /// Search for an HOTK_TrackedDevice that is tracking the HMD, or spawn one if required.
+    /// </summary>
+    private void FindHMD()
+    {
+        if (_hmdTracker != null && _hmdTracker.IsValid) return;
+        // Try to find an HOTK_TrackedDevice that is active and tracking the HMD
+        foreach (var g in FindObjectsOfType<HOTK_TrackedDevice>().Where(g => g.enabled && g.Type == HOTK_TrackedDevice.EType.HMD))
+        {
+            _hmdTracker = g;
+            break;
+        }
+
+        if (_hmdTracker != null) return;
+        Debug.LogWarning("Couldn't find an HMD tracker. Making one up :(");
+        var go = new GameObject("HMD Tracker", typeof(HOTK_TrackedDevice)) {hideFlags = HideFlags.HideInHierarchy}.GetComponent<HOTK_TrackedDevice>();
+        go.Type = HOTK_TrackedDevice.EType.HMD;
+        _hmdTracker = go;
     }
 
     /// <summary>
@@ -502,6 +547,7 @@ public class HOTK_Overlay : MonoBehaviour
     /// <param name="changed"></param>
     private void UpdateGaze(ref bool changed)
     {
+        FindHMD();
         var hit = false;
         if (_hmdTracker != null && _hmdTracker.IsValid)
         {
@@ -542,10 +588,8 @@ public class HOTK_Overlay : MonoBehaviour
 
             var textureBounds = new VRTextureBounds_t
             {
-                uMin = (0 + UvOffset.x) * UvOffset.z,
-                vMin = (1 + UvOffset.y) * UvOffset.w,
-                uMax = (1 + UvOffset.x) * UvOffset.z,
-                vMax = (0 + UvOffset.y) * UvOffset.w
+                uMin = (0 + UvOffset.x) * UvOffset.z, vMin = (1 + UvOffset.y) * UvOffset.w,
+                uMax = (1 + UvOffset.x) * UvOffset.z, vMax = (0 + UvOffset.y) * UvOffset.w
             };
             overlay.SetOverlayTextureBounds(_handle, ref textureBounds);
 
