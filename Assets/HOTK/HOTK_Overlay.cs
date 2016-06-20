@@ -6,26 +6,28 @@ using Valve.VR;
 public class HOTK_Overlay : MonoBehaviour
 {
     #region Custom Inspector Vars
-    [NonSerialized] public bool ShowSettingsAppearance = true; 
+    [NonSerialized] public bool ShowSettingsAppearance = true;
     [NonSerialized] public bool ShowSettingsInput = false;
     [NonSerialized] public bool ShowSettingsAttachment = false;
     #endregion
-    
+
     #region Settings
     [Tooltip("The texture that will be drawn for the Overlay.")]
     public Texture OverlayTexture;
     [Tooltip("How, if at all, the Overlay is animated when being looked at.")]
-    public AnimationType AnimateOnGaze;
+    public AnimationType AnimateOnGaze = AnimationType.None;
     [Tooltip("The alpha at which the Overlay will be drawn.")]
     public float Alpha = 1.0f;			// opacity 0..1
     [Tooltip("The alpha at which the Overlay will be drawn.")]
     public float Alpha2 = 1.0f;			// opacity 0..1 - Only used for AnimateOnGaze
+    [Tooltip("The speed the Alpha changes at.")]
+    public float AlphaSpeed = 0.01f;
     [Tooltip("The scale at which the Overlay will be drawn.")]
     public float Scale = 1.0f;			// size of overlay view
     [Tooltip("The scale at which the Overlay will be drawn.")]
     public float Scale2 = 1.0f;			// size of overlay view - Only used for AnimateOnGaze
-    [Tooltip("The speed of the animation.")]
-    public float AnimateSpeed = 0.1f;
+    [Tooltip("The speed the Scale changes at.")]
+    public float ScaleSpeed = 0.1f;
     [Tooltip("This causes the Overlay to draw directly to the screen, instead of to the VRCompositor.")]
     public bool Highquality;            // Only one Overlay can be HQ at a time
     [Tooltip("This causes the Overlay to draw with Anti-Aliasing. Requires High Quality.")]
@@ -59,6 +61,7 @@ public class HOTK_Overlay : MonoBehaviour
     private AttachmentPoint _anchorPoint;
     private Vector3 _anchorOffset = Vector3.zero;
     private Quaternion _anchorRotation = Quaternion.identity;
+    private Vector3 _objectPosition = Vector3.zero;
     private Quaternion _objectRotation = Quaternion.identity;
     private ulong _handle = OpenVR.k_ulOverlayHandleInvalid;
     private uint _anchor;
@@ -83,18 +86,34 @@ public class HOTK_Overlay : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Check if anything has changed with the Overlay, and update the OpenVR system as necessary.
+    /// </summary>
     public void Update()
     {
-        if (MeshRenderer != null && _overlayTexture != OverlayTexture)
+        var changed = false;
+        if (_overlayTexture != OverlayTexture)
         {
             _overlayTexture = OverlayTexture;
-            MeshRenderer.material.mainTexture = OverlayTexture;
+            if (MeshRenderer != null) MeshRenderer.material.mainTexture = OverlayTexture; // If our texture changes, change our MeshRenderer's texture also. The MeshRenderer is optional.
+            changed = true;
         }
-        UpdateOverlay();
-        if (_anchorDevice != AnchorDevice ||_anchorPoint != AnchorPoint ||_anchorOffset != AnchorOffset)
+        // If the AnchorDevice changes, or our Attachment Point or Offset changes, reattach the overlay
+        if (_anchorDevice != AnchorDevice || _anchorPoint != AnchorPoint || _anchorOffset != AnchorOffset)
+        {
             AttachTo(AnchorDevice, Scale, AnchorOffset, AnchorPoint);
-        UpdateOverlayRotation();
-        UpdateGaze();
+            changed = true;
+        }
+        // Check if our Overlay's rotation or position changed
+        CheckOverlayRotationChanged(ref changed);
+        CheckOverlayPositionChanged(ref changed);
+
+        // Check if the Overlay is being Gazed at, or has been recently and is still animating
+        if (AnimateOnGaze != AnimationType.None) UpdateGaze(ref changed);
+
+        // Update our Overlay if necessary
+        if (changed)
+            UpdateOverlay();
     }
 
     public void OnEnable()
@@ -105,6 +124,8 @@ public class HOTK_Overlay : MonoBehaviour
         #pragma warning restore 0168
         var overlay = OpenVR.Overlay;
         if (overlay == null) return;
+        _objectRotation = Quaternion.identity;
+        _objectPosition = Vector3.zero;
         var error = overlay.CreateOverlay(Key + gameObject.GetInstanceID(), gameObject.name, ref _handle);
         if (error == EVROverlayError.None) return;
         Debug.Log(error.ToString());
@@ -117,296 +138,6 @@ public class HOTK_Overlay : MonoBehaviour
         var overlay = OpenVR.Overlay;
         if (overlay != null) overlay.DestroyOverlay(_handle);
         _handle = OpenVR.k_ulOverlayHandleInvalid;
-    }
-
-    private void UpdateOverlay()
-    {
-        var overlay = OpenVR.Overlay;
-        if (overlay == null) return;
-
-        if (OverlayTexture != null)
-        {
-            var error = overlay.ShowOverlay(_handle);
-            if (error == EVROverlayError.InvalidHandle || error == EVROverlayError.UnknownOverlay)
-            {
-                if (overlay.FindOverlay(Key, ref _handle) != EVROverlayError.None) return;
-            }
-
-            var tex = new Texture_t
-            {
-                handle = OverlayTexture.GetNativeTexturePtr(),
-                eType = SteamVR.instance.graphicsAPI,
-                eColorSpace = EColorSpace.Auto
-            };
-
-            overlay.SetOverlayTexture(_handle, ref tex);
-            overlay.SetOverlayAlpha(_handle, AnimateOnGaze == AnimationType.Alpha ? _alpha : Alpha);
-            overlay.SetOverlayWidthInMeters(_handle, AnimateOnGaze == AnimationType.Scale ? _scale : Scale);
-            overlay.SetOverlayAutoCurveDistanceRangeInMeters(_handle, CurvedRange.x, CurvedRange.y);
-
-            var textureBounds = new VRTextureBounds_t
-            {
-                uMin = (0 + UvOffset.x)*UvOffset.z,
-                vMin = (1 + UvOffset.y)*UvOffset.w,
-                uMax = (1 + UvOffset.x)*UvOffset.z,
-                vMax = (0 + UvOffset.y)*UvOffset.w
-            };
-            overlay.SetOverlayTextureBounds(_handle, ref textureBounds);
-
-            var vecMouseScale = new HmdVector2_t
-            {
-                v0 = MouseScale.x,
-                v1 = MouseScale.y
-            };
-            overlay.SetOverlayMouseScale(_handle, ref vecMouseScale);
-
-            var vrcam = SteamVR_Render.Top();
-            if (_anchor != OpenVR.k_unTrackedDeviceIndexInvalid) // Attached to some SteamVR_TrackedObject
-            {
-                var t = UpdateOverlayPosition();
-                overlay.SetOverlayTransformTrackedDeviceRelative(_handle, _anchor, ref t);
-            }
-            else if (AnchorDevice == AttachmentDevice.World) // Attached to World
-            {
-                var t = UpdateOverlayPosition();
-                overlay.SetOverlayTransformAbsolute(_handle, SteamVR_Render.instance.trackingSpace, ref t);
-            }
-            else if (vrcam != null && vrcam.origin != null) // Attached to Camera
-            {
-                var offset = new SteamVR_Utils.RigidTransform(vrcam.origin, transform);
-                offset.pos.x /= vrcam.origin.localScale.x;
-                offset.pos.y /= vrcam.origin.localScale.y;
-                offset.pos.z /= vrcam.origin.localScale.z;
-
-                var t = offset.ToHmdMatrix34();
-                overlay.SetOverlayTransformAbsolute(_handle, SteamVR_Render.instance.trackingSpace, ref t);
-            }
-            else // HMD not found :(
-            {
-                var t = UpdateOverlayPosition();
-                overlay.SetOverlayTransformTrackedDeviceRelative(_handle, 0, ref t);
-            }
-
-            overlay.SetOverlayInputMethod(_handle, InputMethod);
-
-            if (Highquality)
-            {
-                if (HighQualityOverlay != this && HighQualityOverlay != null)
-                {
-                    if (HighQualityOverlay.Highquality)
-                    {
-                        Debug.LogWarning("Only one Overlay can be in HighQuality mode as per the OpenVR API.");
-                        HighQualityOverlay.Highquality = false;
-                    }
-                    HighQualityOverlay = this;
-                }else if (HighQualityOverlay == null)
-                    HighQualityOverlay = this;
-                overlay.SetHighQualityOverlay(_handle);
-                overlay.SetOverlayFlag(_handle, VROverlayFlags.Curved, Curved);
-                overlay.SetOverlayFlag(_handle, VROverlayFlags.RGSS4X, Antialias);
-            }
-            else if (overlay.GetHighQualityOverlay() == _handle)
-            {
-                overlay.SetHighQualityOverlay(OpenVR.k_ulOverlayHandleInvalid);
-            }
-        }
-        else
-        {
-            overlay.HideOverlay(_handle);
-        }
-    }
-
-    /// <summary>
-    /// Update the Overlay's Rotation if necessary
-    /// </summary>
-    /// <param name="force"></param>
-    private void UpdateOverlayRotation(bool force = false)
-    {
-        if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid) return;
-        if (OverlayReference == null) return;
-        if (!force && _objectRotation == gameObject.transform.localRotation) return;
-        _objectRotation = gameObject.transform.localRotation;
-        OverlayReference.transform.localRotation = _anchorRotation * _objectRotation;
-    }
-
-    /// <summary>
-    /// Update the Overlay's Position and return the resulting HmdMatrix34_t
-    /// </summary>
-    /// <returns></returns>
-    private HmdMatrix34_t UpdateOverlayPosition()
-    {
-        if (OverlayReference == null) OverlayReference = new GameObject("Overlay Reference") {hideFlags = HideFlags.HideInHierarchy};
-        if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid)
-        {
-            var offset = new SteamVR_Utils.RigidTransform(OverlayReference.transform, transform);
-            offset.pos.x /= OverlayReference.transform.localScale.x;
-            offset.pos.y /= OverlayReference.transform.localScale.y;
-            offset.pos.z /= OverlayReference.transform.localScale.z;
-            var t = offset.ToHmdMatrix34();
-            return t;
-        }
-        else
-        {
-            if (ZeroReference == null) ZeroReference = new GameObject("Zero Reference") {hideFlags = HideFlags.HideInHierarchy};
-            var offset = new SteamVR_Utils.RigidTransform(ZeroReference.transform, OverlayReference.transform);
-            offset.pos.x /= ZeroReference.transform.localScale.x;
-            offset.pos.y /= ZeroReference.transform.localScale.y;
-            offset.pos.z /= ZeroReference.transform.localScale.z;
-            var t = offset.ToHmdMatrix34();
-            return t;
-        }
-    }
-
-    private void UpdateGaze()
-    {
-        var hit = false;
-        if (_hmdTracker != null && _hmdTracker.IsValid)
-        {
-            var result = new IntersectionResults();
-            hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, new Vector3(0f, 0f, 1f), ref result);
-            //Debug.Log("Hit! " + gameObject.name);
-        }
-        HandleAnimateOnGaze(hit);
-    }
-
-    /// <summary>
-    /// Animate this Overlay, based on it's AnimateOnGaze setting.
-    /// </summary>
-    /// <param name="hit"></param>
-    private void HandleAnimateOnGaze(bool hit)
-    {
-        if (hit)
-        {
-            switch (AnimateOnGaze)
-            {
-                case AnimationType.Alpha:
-                    if (Alpha < Alpha2)
-                    {
-                        if (_alpha < Alpha2)
-                        {
-                            _alpha += AnimateSpeed;
-                            if (_alpha > Alpha2)
-                                _alpha = Alpha2;
-                        }
-                    }
-                    else // Not sure why you'd want it to fade out on gaze, but just in case
-                    {
-                        if (_alpha > Alpha2)
-                        {
-                            _alpha -= AnimateSpeed;
-                            if (_alpha < Alpha2)
-                                _alpha = Alpha2;
-                        }
-                    }
-                    break;
-                case AnimationType.Scale:
-                    if (Scale < Scale2)
-                    {
-                        if (_scale < Scale2)
-                        {
-                            _scale += AnimateSpeed;
-                            if (_scale > Scale2)
-                                _scale = Scale2;
-                        }
-                    }
-                    else // Not sure why you'd want it to scale down on gaze, but just in case
-                    {
-                        if (_scale > Scale2)
-                        {
-                            _scale -= AnimateSpeed;
-                            if (_scale < Scale2)
-                                _scale = Scale2;
-                        }
-                    }
-                    break;
-            }
-        }
-        else
-        {
-            switch (AnimateOnGaze)
-            {
-                case AnimationType.Alpha:
-                    if (Alpha < Alpha2)
-                    {
-                        if (_alpha > Alpha)
-                        {
-                            _alpha -= AnimateSpeed;
-                            if (_alpha < Alpha)
-                                _alpha = Alpha;
-                        }
-                    }
-                    else // Not sure why you'd want it to fade in when you look away from it, but just in case
-                    {
-                        if (_alpha < Alpha)
-                        {
-                            _alpha += AnimateSpeed;
-                            if (_alpha > Alpha)
-                                _alpha = Alpha;
-                        }
-                    }
-                    break;
-                case AnimationType.Scale:
-                    if (Scale < Scale2)
-                    {
-                        if (_scale > Scale)
-                        {
-                            _scale -= AnimateSpeed;
-                            if (_scale < Scale)
-                                _scale = Scale;
-                        }
-                    }
-                    else // Not sure why you'd want it to scale up when you look away from it, but just in case
-                    {
-                        if (_scale < Scale)
-                        {
-                            _scale += AnimateSpeed;
-                            if (_scale > Scale)
-                                _scale = Scale;
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-
-    /*private bool PollNextEvent(ref VREvent_t pEvent)
-    {
-        var overlay = OpenVR.Overlay;
-        if (overlay == null) return false;
-        var size = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VREvent_t));
-        return overlay.PollNextOverlayEvent(_handle, ref pEvent, size);
-    }*/
-
-    private bool ComputeIntersection(Vector3 source, Vector3 direction, ref IntersectionResults results)
-    {
-        var overlay = OpenVR.Overlay;
-        if (overlay == null) return false;
-
-        var input = new VROverlayIntersectionParams_t
-        {
-            eOrigin = SteamVR_Render.instance.trackingSpace,
-            vSource =
-            {
-                v0 = source.x,
-                v1 = source.y,
-                v2 = -source.z
-            },
-            vDirection =
-            {
-                v0 = direction.x,
-                v1 = direction.y,
-                v2 = -direction.z
-            }
-        };
-
-        var output = new VROverlayIntersectionResults_t();
-        if (!overlay.ComputeOverlayIntersection(_handle, ref input, ref output)) return false;
-
-        results.Point = new Vector3(output.vPoint.v0, output.vPoint.v1, -output.vPoint.v2);
-        results.Normal = new Vector3(output.vNormal.v0, output.vNormal.v1, -output.vNormal.v2);
-        results.UVs = new Vector2(output.vUVs.v0, output.vUVs.v1);
-        results.Distance = output.fDistance;
-        return true;
     }
 
     /// <summary>
@@ -440,7 +171,7 @@ public class HOTK_Overlay : MonoBehaviour
     /// <param name="point"></param>
     public void AttachTo(AttachmentDevice device, float scale, Vector3 offset, AttachmentPoint point = AttachmentPoint.Center)
     {
-        UpdateOverlayPosition();
+        GetOverlayPosition();
 
         var manager = HOTK_TrackedDeviceManager.Instance;
         _anchorDevice = device;
@@ -562,8 +293,337 @@ public class HOTK_Overlay : MonoBehaviour
         }
         OverlayReference.transform.localPosition = pos;
         _anchorRotation = rot;
-        UpdateOverlayRotation(true); // Force rotational update
+        var changed = false;
+        CheckOverlayRotationChanged(ref changed, true); // Force rotational update
     }
+
+    /// <summary>
+    /// Update the Overlay's Position if necessary.
+    /// </summary>
+    /// <returns></returns>
+    private void CheckOverlayPositionChanged(ref bool changed)
+    {
+        if (AnchorDevice == AttachmentDevice.LeftController || AnchorDevice == AttachmentDevice.RightController) return; // Controller overlays do not adjust with gameObject transform
+        if (_objectPosition == gameObject.transform.localPosition) return;
+        _objectPosition = gameObject.transform.localPosition;
+        changed = true;
+    }
+
+    /// <summary>
+    /// Update the Overlay's Rotation if necessary.
+    /// </summary>
+    /// <param name="changed"></param>
+    /// <param name="force"></param>
+    private void CheckOverlayRotationChanged(ref bool changed, bool force = false)
+    {
+        bool change = _objectRotation != gameObject.transform.localRotation;
+        if (change)
+        {
+            _objectRotation = gameObject.transform.localRotation;
+            changed = true;
+        }
+        if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid || OverlayReference == null) return; // This part below is only for Controllers
+        if (!force && !change && OverlayReference.transform.localRotation == _anchorRotation * _objectRotation) return;
+        OverlayReference.transform.localRotation = _anchorRotation * _objectRotation;
+        changed = true;
+    }
+
+    private bool ComputeIntersection(Vector3 source, Vector3 direction, ref IntersectionResults results)
+    {
+        var overlay = OpenVR.Overlay;
+        if (overlay == null) return false;
+
+        var input = new VROverlayIntersectionParams_t
+        {
+            eOrigin = SteamVR_Render.instance.trackingSpace,
+            vSource =
+            {
+                v0 = source.x,
+                v1 = source.y,
+                v2 = -source.z
+            },
+            vDirection =
+            {
+                v0 = direction.x,
+                v1 = direction.y,
+                v2 = -direction.z
+            }
+        };
+
+        var output = new VROverlayIntersectionResults_t();
+        if (!overlay.ComputeOverlayIntersection(_handle, ref input, ref output)) return false;
+
+        results.Point = new Vector3(output.vPoint.v0, output.vPoint.v1, -output.vPoint.v2);
+        results.Normal = new Vector3(output.vNormal.v0, output.vNormal.v1, -output.vNormal.v2);
+        results.UVs = new Vector2(output.vUVs.v0, output.vUVs.v1);
+        results.Distance = output.fDistance;
+        return true;
+    }
+
+    /// <summary>
+    /// Update the Overlay's Position and return the resulting HmdMatrix34_t
+    /// </summary>
+    /// <returns></returns>
+    private HmdMatrix34_t GetOverlayPosition()
+    {
+        if (OverlayReference == null) OverlayReference = new GameObject("Overlay Reference") { hideFlags = HideFlags.HideInHierarchy };
+        if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid)
+        {
+            var offset = new SteamVR_Utils.RigidTransform(OverlayReference.transform, transform);
+            offset.pos.x /= OverlayReference.transform.localScale.x;
+            offset.pos.y /= OverlayReference.transform.localScale.y;
+            offset.pos.z /= OverlayReference.transform.localScale.z;
+            var t = offset.ToHmdMatrix34();
+            return t;
+        }
+        else
+        {
+            if (ZeroReference == null) ZeroReference = new GameObject("Zero Reference") { hideFlags = HideFlags.HideInHierarchy };
+            var offset = new SteamVR_Utils.RigidTransform(ZeroReference.transform, OverlayReference.transform);
+            offset.pos.x /= ZeroReference.transform.localScale.x;
+            offset.pos.y /= ZeroReference.transform.localScale.y;
+            offset.pos.z /= ZeroReference.transform.localScale.z;
+            var t = offset.ToHmdMatrix34();
+            return t;
+        }
+    }
+
+    /// <summary>
+    /// Animate this Overlay, based on it's AnimateOnGaze setting.
+    /// </summary>
+    /// <param name="hit"></param>
+    /// <param name="changed"></param>
+    private void HandleAnimateOnGaze(bool hit, ref bool changed)
+    {
+        if (hit)
+        {
+            if (AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale)
+            {
+                if (Alpha < Alpha2)
+                {
+                    if (_alpha < Alpha2)
+                    {
+                        _alpha += AlphaSpeed;
+                        changed = true;
+                        if (_alpha > Alpha2)
+                            _alpha = Alpha2;
+                    }
+                }
+                else // Not sure why you'd want it to fade out on gaze, but just in case
+                {
+                    if (_alpha > Alpha2)
+                    {
+                        _alpha -= AlphaSpeed;
+                        changed = true;
+                        if (_alpha < Alpha2)
+                            _alpha = Alpha2;
+                    }
+                }
+            }
+            if (AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale)
+            {
+                if (Scale < Scale2)
+                {
+                    if (_scale < Scale2)
+                    {
+                        _scale += ScaleSpeed;
+                        changed = true;
+                        if (_scale > Scale2)
+                            _scale = Scale2;
+                    }
+                }
+                else // Not sure why you'd want it to scale down on gaze, but just in case
+                {
+                    if (_scale > Scale2)
+                    {
+                        _scale -= ScaleSpeed;
+                        changed = true;
+                        if (_scale < Scale2)
+                            _scale = Scale2;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale)
+            {
+                if (Alpha < Alpha2)
+                {
+                    if (_alpha > Alpha)
+                    {
+                        _alpha -= AlphaSpeed;
+                        changed = true;
+                        if (_alpha < Alpha)
+                            _alpha = Alpha;
+                    }
+                }
+                else // Not sure why you'd want it to fade in when you look away from it, but just in case
+                {
+                    if (_alpha < Alpha)
+                    {
+                        _alpha += AlphaSpeed;
+                        changed = true;
+                        if (_alpha > Alpha)
+                            _alpha = Alpha;
+                    }
+                }
+            }
+
+            if (AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale)
+            {
+                if (Scale < Scale2)
+                {
+                    if (_scale > Scale)
+                    {
+                        _scale -= ScaleSpeed;
+                        changed = true;
+                        if (_scale < Scale)
+                            _scale = Scale;
+                    }
+                }
+                else // Not sure why you'd want it to scale up when you look away from it, but just in case
+                {
+                    if (_scale < Scale)
+                    {
+                        _scale += ScaleSpeed;
+                        changed = true;
+                        if (_scale > Scale)
+                            _scale = Scale;
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Attempt to ComputerIntersection the HMD's Gaze and hit an Overlay
+    /// </summary>
+    /// <param name="changed"></param>
+    private void UpdateGaze(ref bool changed)
+    {
+        var hit = false;
+        if (_hmdTracker != null && _hmdTracker.IsValid)
+        {
+            var result = new IntersectionResults();
+            hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, new Vector3(0f, 0f, 1f), ref result);
+            //Debug.Log("Hit! " + gameObject.name);
+        }
+        HandleAnimateOnGaze(hit, ref changed);
+    }
+
+    /// <summary>
+    /// Push Updates to our Overlay to the OpenVR System
+    /// </summary>
+    private void UpdateOverlay()
+    {
+        var overlay = OpenVR.Overlay;
+        if (overlay == null) return;
+
+        if (OverlayTexture != null)
+        {
+            var error = overlay.ShowOverlay(_handle);
+            if (error == EVROverlayError.InvalidHandle || error == EVROverlayError.UnknownOverlay)
+            {
+                if (overlay.FindOverlay(Key, ref _handle) != EVROverlayError.None) return;
+            }
+
+            var tex = new Texture_t
+            {
+                handle = OverlayTexture.GetNativeTexturePtr(),
+                eType = SteamVR.instance.graphicsAPI,
+                eColorSpace = EColorSpace.Auto
+            };
+
+            overlay.SetOverlayTexture(_handle, ref tex);
+            overlay.SetOverlayAlpha(_handle, AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale ? _alpha : Alpha);
+            overlay.SetOverlayWidthInMeters(_handle, AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale ? _scale : Scale);
+            overlay.SetOverlayAutoCurveDistanceRangeInMeters(_handle, CurvedRange.x, CurvedRange.y);
+
+            var textureBounds = new VRTextureBounds_t
+            {
+                uMin = (0 + UvOffset.x) * UvOffset.z,
+                vMin = (1 + UvOffset.y) * UvOffset.w,
+                uMax = (1 + UvOffset.x) * UvOffset.z,
+                vMax = (0 + UvOffset.y) * UvOffset.w
+            };
+            overlay.SetOverlayTextureBounds(_handle, ref textureBounds);
+
+            var vecMouseScale = new HmdVector2_t
+            {
+                v0 = MouseScale.x,
+                v1 = MouseScale.y
+            };
+            overlay.SetOverlayMouseScale(_handle, ref vecMouseScale);
+
+            if (_anchor != OpenVR.k_unTrackedDeviceIndexInvalid) // Attached to some HOTK_TrackedDevice, used for Controllers
+            {
+                var t = GetOverlayPosition();
+                overlay.SetOverlayTransformTrackedDeviceRelative(_handle, _anchor, ref t);
+            }
+            else if (AnchorDevice == AttachmentDevice.World) // Attached to World
+            {
+                var t = GetOverlayPosition();
+                overlay.SetOverlayTransformAbsolute(_handle, SteamVR_Render.instance.trackingSpace, ref t);
+            }
+            else
+            {
+                var vrcam = SteamVR_Render.Top();
+                if (vrcam != null && vrcam.origin != null) // Attached to Camera (We are Rendering)
+                {
+                    var offset = new SteamVR_Utils.RigidTransform(vrcam.origin, transform);
+                    offset.pos.x /= vrcam.origin.localScale.x;
+                    offset.pos.y /= vrcam.origin.localScale.y;
+                    offset.pos.z /= vrcam.origin.localScale.z;
+
+                    var t = offset.ToHmdMatrix34();
+                    overlay.SetOverlayTransformAbsolute(_handle, SteamVR_Render.instance.trackingSpace, ref t);
+                }
+                else // Attached to Camera (We are Not Rendering)
+                {
+                    var t = GetOverlayPosition();
+                    overlay.SetOverlayTransformTrackedDeviceRelative(_handle, 0, ref t);
+                }
+            }
+
+            overlay.SetOverlayInputMethod(_handle, InputMethod);
+
+            if (Highquality)
+            {
+                if (HighQualityOverlay != this && HighQualityOverlay != null)
+                {
+                    if (HighQualityOverlay.Highquality)
+                    {
+                        Debug.LogWarning("Only one Overlay can be in HighQuality mode as per the OpenVR API.");
+                        HighQualityOverlay.Highquality = false;
+                    }
+                    HighQualityOverlay = this;
+                }
+                else if (HighQualityOverlay == null)
+                    HighQualityOverlay = this;
+
+                overlay.SetHighQualityOverlay(_handle);
+                overlay.SetOverlayFlag(_handle, VROverlayFlags.Curved, Curved);
+                overlay.SetOverlayFlag(_handle, VROverlayFlags.RGSS4X, Antialias);
+            }
+            else if (overlay.GetHighQualityOverlay() == _handle)
+            {
+                overlay.SetHighQualityOverlay(OpenVR.k_ulOverlayHandleInvalid);
+            }
+        }
+        else
+        {
+            overlay.HideOverlay(_handle);
+        }
+    }
+
+    /*private bool PollNextEvent(ref VREvent_t pEvent)
+    {
+        var overlay = OpenVR.Overlay;
+        if (overlay == null) return false;
+        var size = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(VREvent_t));
+        return overlay.PollNextOverlayEvent(_handle, ref pEvent, size);
+    }*/
 
     #region Structs and Enums
     public struct IntersectionResults
@@ -666,6 +726,10 @@ public class HOTK_Overlay : MonoBehaviour
         /// Animate this Overlay by scaling it.
         /// </summary>
         Scale,
+        /// <summary>
+        /// Animate this Overlay by changing its Alpha and scaling it.
+        /// </summary>
+        AlphaAndScale,
     }
     #endregion
 }
