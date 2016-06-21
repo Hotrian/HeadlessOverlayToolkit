@@ -8,9 +8,9 @@ To use this, load up the HOTK_TwitchDemoScene, press Play, and enter your Userna
 
 Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
 - [Here is a GIF](https://gfycat.com/AnxiousLoathsomeFlamingo) of the Twitch Chat in action!
+- [Here is another GIF](https://gfycat.com/DefinitiveSoreCommongonolek) of the Twitch Chat, this time, inside Tabletop Sim!
 - [Here is a Youtube Video](https://www.youtube.com/watch?v=q1PTaL1Sx9I) that shows some of the default Controller attachment points.
-- [Here is a Youtube Video](https://www.youtube.com/watch?v=nB19zl-_DlM) that gives an example of these Overlays in TiltBrush.
-- [Here is a GIF](https://gfycat.com/SoftJointFrigatebird) that very quickly demonstrates an AlphaAndScale animation on Gaze.
+- [Here is a Youtube Video](https://www.youtube.com/watch?v=nB19zl-_DlM) that gives an example of the default Overlays in TiltBrush.
 
 **Features:**
 - See Twitch Chat in VR! From Any Game!
