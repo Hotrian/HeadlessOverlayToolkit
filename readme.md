@@ -31,6 +31,17 @@ Note that these demos were taken during development, and do not necessarily repr
 - The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
 - Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
 
+**Quick Start:**
+- Download and Install [Unity](https://unity3d.com/get-unity/download?ref=personal) (I'm using version 5.3.5f1)
+- Download [the repo as a zip](https://github.com/Hotrian/HeadlessOverlayToolkit/archive/twitchtest.zip) and upzip the folder inside.
+- Launch Unity
+- [Click 'Open'](http://image.prntscr.com/image/49b79aeea81e4ad48d1b56df76cef5fb.png), select the folder you unzipped, [click 'Select Folder'](http://image.prntscr.com/image/8c851924eacf4d44944498b26dad74ed.png)
+- Once Unity Loads the project, [Load up the TwitchChat Demo scene](http://image.prntscr.com/image/1bc9e550f875468bb49558b76cc2d1f9.png)
+- [Click Play](http://image.prntscr.com/image/4eba127a9d59427fa1c5b6a06aac8eed.png)
+- Once the project starts, enter your Username, OAuth key (this is basically a password, you can [get yours here](https://twitchapps.com/tmi/)), and desired Channel name [into these boxes](http://image.prntscr.com/image/9ba697c9537d431e8f1b58813cb677a0.png) and click "Press to Connect"
+- WIth any luck, your twitch chat should appear behind one of your controllers :D
+
+
 **If you want to run this headless:**
 
 Check out the [documentation here](http://docs.unity3d.com/Manual/CommandLineArguments.html) on how to run Unity headless.  There are a few different ways to do this.
@@ -42,3 +53,9 @@ The basic steps to create a shortcut on Windows that launches headless are:
 - Put " -batchmode" at the end of the text in the 'Target' box
 - Launch your Shortcut, and your Application should launch hidden
 - You can crash your Application through the Task Manager, but be sure to add a graceful way to quit in the future :)
+
+To run the twitchtest variant headless, you'll have to modify the scripts so that they automatically input the correct Username, OAuth, and Channel name, before starting automatically.
+
+**Special Thanks:**
+
+Thanks to Grahnz for the [TwitchIRC.cs](https://github.com/Grahnz/TwitchIRC-Unity/blob/master/TwitchIRC.cs) script!
