@@ -55,6 +55,7 @@ public class HOTK_Overlay : MonoBehaviour
     public GameObject OverlayReference;             // Used to get a reference for the Overlay's transform
     
     private Texture _overlayTexture;                    // These are used to cache values and check for changes
+    private Vector4 _uvOffset = Vector4.zero;
     private AttachmentDevice _anchorDevice;             // These are used to cache values and check for changes
     private AttachmentPoint _anchorPoint;               // These are used to cache values and check for changes
     private Vector3 _anchorOffset = Vector3.zero;       // These are used to cache values and check for changes
@@ -65,8 +66,8 @@ public class HOTK_Overlay : MonoBehaviour
     private ulong _handle = OpenVR.k_ulOverlayHandleInvalid;    // caches a reference to our Overlay handle
     private HOTK_TrackedDevice _hmdTracker;                     // caches a reference to the HOTK_TrackedDevice that is tracking the HMD
     private uint _anchor;   // caches a HOTK_TrackedDevice ID for anchoring the Overlay, if applicable
-    private float _alpha;   // Only used for AnimateOnGaze
-    private float _scale;   // Only used for AnimateOnGaze
+    private float _alpha;
+    private float _scale;
 
     // Caches our MeshRenderer, if applicable
     private MeshRenderer MeshRenderer
@@ -89,6 +90,8 @@ public class HOTK_Overlay : MonoBehaviour
         // Check if our Overlay's rotation or position changed
         CheckOverlayRotationChanged(ref changed);
         CheckOverlayPositionChanged(ref changed);
+        // Check if our Overlay's Alpha or Scale changed
+        CheckOverlayAlphaAndScale(ref changed);
         // Check if our Overlay is being Gazed at, or has been recently and is still animating
         if (AnimateOnGaze != AnimationType.None) UpdateGaze(ref changed);
         // Update our Overlay if anything has changed
@@ -110,6 +113,7 @@ public class HOTK_Overlay : MonoBehaviour
         // Cache the default value on start
         _scale = Scale;
         _alpha = Alpha;
+        _uvOffset = UvOffset;
         _objectRotation = Quaternion.identity;
         _objectPosition = Vector3.zero;
         var error = overlay.CreateOverlay(Key + gameObject.GetInstanceID(), gameObject.name, ref _handle);
@@ -289,6 +293,26 @@ public class HOTK_Overlay : MonoBehaviour
         CheckOverlayRotationChanged(ref changed, true); // Force rotational update
     }
 
+    private void CheckOverlayAlphaAndScale(ref bool changed)
+    {
+        if (AnimateOnGaze != AnimationType.Alpha && AnimateOnGaze != AnimationType.AlphaAndScale)
+        {
+            if (_alpha != Alpha)
+            {
+                _alpha = Alpha;
+                changed = true;
+            }
+        }
+        if (AnimateOnGaze != AnimationType.Scale && AnimateOnGaze != AnimationType.AlphaAndScale)
+        {
+            if (_scale != Scale)
+            {
+                _scale = Scale;
+                changed = true;
+            }
+        }
+    }
+
     /// <summary>
     /// Check if our Overlay's Anchor has changed, and AttachTo it if necessary.
     /// </summary>
@@ -338,8 +362,9 @@ public class HOTK_Overlay : MonoBehaviour
     /// <param name="changed"></param>
     private void CheckOverlayTextureChanged(ref bool changed)
     {
-        if (_overlayTexture == OverlayTexture) return;
+        if (_overlayTexture == OverlayTexture && _uvOffset == UvOffset) return;
         _overlayTexture = OverlayTexture;
+        _uvOffset = UvOffset;
         changed = true;
 
         if (MeshRenderer != null) // If our texture changes, change our MeshRenderer's texture also. The MeshRenderer is optional.
@@ -400,7 +425,7 @@ public class HOTK_Overlay : MonoBehaviour
 
         if (_hmdTracker != null) return;
         Debug.LogWarning("Couldn't find an HMD tracker. Making one up :(");
-        var go = new GameObject("HMD Tracker", typeof(HOTK_TrackedDevice)) {hideFlags = HideFlags.HideInHierarchy}.GetComponent<HOTK_TrackedDevice>();
+        var go = new GameObject("HMD Tracker", typeof(HOTK_TrackedDevice)) { hideFlags = HideFlags.HideInHierarchy }.GetComponent<HOTK_TrackedDevice>();
         go.Type = HOTK_TrackedDevice.EType.HMD;
         _hmdTracker = go;
     }
