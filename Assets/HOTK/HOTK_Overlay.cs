@@ -97,6 +97,8 @@ public class HOTK_Overlay : MonoBehaviour
         // Update our Overlay if anything has changed
         if (changed)
             UpdateOverlay();
+        else
+            UpdateRenderTexture();
     }
 
     /// <summary>
@@ -297,7 +299,7 @@ public class HOTK_Overlay : MonoBehaviour
     {
         if (AnimateOnGaze != AnimationType.Alpha && AnimateOnGaze != AnimationType.AlphaAndScale)
         {
-            if (_alpha != Alpha)
+            if (_alpha != Alpha) // Loss of precision but it should work
             {
                 _alpha = Alpha;
                 changed = true;
@@ -305,7 +307,7 @@ public class HOTK_Overlay : MonoBehaviour
         }
         if (AnimateOnGaze != AnimationType.Scale && AnimateOnGaze != AnimationType.AlphaAndScale)
         {
-            if (_scale != Scale)
+            if (_scale != Scale) // Loss of precision but it should work
             {
                 _scale = Scale;
                 changed = true;
@@ -684,6 +686,26 @@ public class HOTK_Overlay : MonoBehaviour
         {
             overlay.HideOverlay(_handle);
         }
+    }
+
+    /// <summary>
+    /// Update our texture if we are a RenderTexture.
+    /// This is called every frame where nothing else changes, so that we still push RenderTexture updates if needed.
+    /// </summary>
+    private void UpdateRenderTexture()
+    {
+        if (!(OverlayTexture is RenderTexture)) return; // This covers the null check for OverlayTexture
+        var overlay = OpenVR.Overlay;
+        if (overlay == null) return;
+
+        var tex = new Texture_t
+        {
+            handle = OverlayTexture.GetNativeTexturePtr(),
+            eType = SteamVR.instance.graphicsAPI,
+            eColorSpace = EColorSpace.Auto
+        };
+
+        overlay.SetOverlayTexture(_handle, ref tex);
     }
 
     /*private bool PollNextEvent(ref VREvent_t pEvent)
