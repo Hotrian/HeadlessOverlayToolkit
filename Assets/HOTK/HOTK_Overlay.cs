@@ -607,7 +607,7 @@ public class HOTK_Overlay : MonoBehaviour
                 eType = SteamVR.instance.graphicsAPI,
                 eColorSpace = EColorSpace.Auto
             };
-
+            overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
             overlay.SetOverlayTexture(_handle, ref tex);
             overlay.SetOverlayAlpha(_handle, AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale ? _alpha : Alpha);
             overlay.SetOverlayWidthInMeters(_handle, AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale ? _scale : Scale);
