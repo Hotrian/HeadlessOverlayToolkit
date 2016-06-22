@@ -4,6 +4,9 @@ This is a stripped down version of the SteamVR Unity Plugin with a custom Overla
 
 To use this, load up the HOTK_TwitchDemoScene, press Play, and enter your Username, OAuth Key (get your [OAuth Key here](http://www.twitchapps.com/tmi/)) and the desired Channel, then press "Press to Connect" and it should momentarilly connect to your Twitch chat. Check behind one of your controllers (should be left!) for your chat display! It should zoom up when you look at it.
 
+**Basic Controls:**
+![basic controls](http://image.prntscr.com/image/d4db6168f600458989f0307afbf1fd99.png)
+
 **Demos:**
 
 Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
