@@ -61,7 +61,7 @@ public class TwitchChatTester : MonoBehaviour
                         ConnectButtonText.text = "Press to Disconnect";
 
                         connected = true;
-                        AddMsg("Twitch", "ff00ff", string.Format("Connecting to #{0}!", ChannelBox.text));
+                        AddMsg("Twitch", "00ff00", string.Format("Connecting to #{0}!", ChannelBox.text));
                         IRC.nickName = UsernameBox.text;
                         IRC.oauth = OAuthBox.text;
                         IRC.channelName = ChannelBox.text.ToLower();
@@ -154,7 +154,7 @@ public class TwitchChatTester : MonoBehaviour
         foreach (var m in messages)
         {
             TextMesh.text = string.Format("{0}: ", m.Name);
-            var builder = string.Format("<color=#00{0}>{1}</color>: ", m.Color, m.Name);
+            var builder = string.Format("<color=#{0}FF>{1}</color>: ", m.Color, m.Name);
             var parts = m.Message.Split(' ');
             foreach (var t in parts)
             {
