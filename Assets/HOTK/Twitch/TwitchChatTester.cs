@@ -64,8 +64,10 @@ public class TwitchChatTester : MonoBehaviour
                         AddMsg("Twitch", "ff00ff", string.Format("Connecting to #{0}!", ChannelBox.text));
                         IRC.nickName = UsernameBox.text;
                         IRC.oauth = OAuthBox.text;
-                        IRC.channelName = ChannelBox.text;
+                        IRC.channelName = ChannelBox.text.ToLower();
 
+                        IRC.enabled = true;
+                        IRC.messageRecievedEvent.AddListener(OnChatMsg);
                         IRC.StartIRC();
                     }
                     else
@@ -91,6 +93,8 @@ public class TwitchChatTester : MonoBehaviour
             ConnectButtonText.text = "Press to Connect";
 
             connected = false;
+            IRC.messageRecievedEvent.RemoveListener(OnChatMsg);
+            IRC.enabled = false;
         }
     }
 
@@ -98,7 +102,6 @@ public class TwitchChatTester : MonoBehaviour
     void Start()
     {
         //IRC.SendCommand("CAP REQ :twitch.tv/tags"); //register for additional data such as emote-ids, name color etc.
-        IRC.messageRecievedEvent.AddListener(OnChatMsg);
     }
 
     // Update is called once per frame
@@ -117,9 +120,9 @@ public class TwitchChatTester : MonoBehaviour
 
         if (!_userColors.ContainsKey(name))
         {
-            var r = Mathf.Max(0.5f, Random.value);
-            var g = Mathf.Max(0.5f, Random.value);
-            var b = Mathf.Max(0.5f, Random.value);
+            var r = Mathf.Max(0.25f, Random.value);
+            var g = Mathf.Max(0.25f, Random.value);
+            var b = Mathf.Max(0.25f, Random.value);
             _userColors.Add(name, colorToHex(new Color(r, g, b)));
         }
 
