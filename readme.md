@@ -13,17 +13,16 @@ Note that these demos were taken during development, and do not necessarily repr
 
 **Features:**
 - See Twitch Chat in VR! From Any Game!
-- Draw Overlays, regardless of the current VR application.
-- Easily attach Overlays to the Screen, a Controller, or drop one in the World.
-- Easily snap Controller attached Overlays to a set "Base Position".
-- Offset Overlays positionally and rotationally.
-- Draw Multiple Overlays Simultaneously (only one Overlay can be 'High Quality').
+- Easily attach Chat to the Screen, a Controller, or drop it in the World.
+- Easily snap Controller attached Chat to a set "Base Position".
+- Offset Chat positionally and rotationally.
 - Custom Inspector with Undo support.
 - Basic Gaze Detection and Animation support (Fade In/Out or Scale Up/Down on Gaze).
 
 **Known Issues:**
+- There is no feedback when you type in an incorrect Username, OAuth, or Channel. If you press connect and do not receive messages, double check your spelling!
 - SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers for me, so I wrote my own manager, HOTK_TrackedDeviceManager.cs. My Device Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis. If only one Controller is connected, and it isn't already assigned, it will be assigned to the right hand.
-- Longer messages can bug out the display for a few messages :(
+- There is no saving/loading! You'll have to reconfigure everything each time if you use the build. Download the source and customize it with Unity right now to get around this!
 
 **Additional Notes:**
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
@@ -40,7 +39,7 @@ Note that these demos were taken during development, and do not necessarily repr
 - Once the project starts, enter your Username, OAuth key (this is basically a password, you can [get yours here](https://twitchapps.com/tmi/)), and desired Channel name [into these boxes](http://image.prntscr.com/image/9ba697c9537d431e8f1b58813cb677a0.png) and click "Press to Connect"
 - With any luck, your twitch chat should appear behind one of your controllers :D
 
-Note that you can copy and paste your oauth key, you don't have to manually type it out, but you do have to get it off that site.
+Note that you can copy and paste your oauth key, you don't have to manually type it out, but you do have to get it off that site, or off another site that generates Twitch OAuth keys.
 
 **If you want to run this headless:**
 
