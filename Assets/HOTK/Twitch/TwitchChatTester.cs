@@ -95,6 +95,7 @@ public class TwitchChatTester : MonoBehaviour
             connected = false;
             IRC.messageRecievedEvent.RemoveListener(OnChatMsg);
             IRC.enabled = false;
+            AddMsg("Twitch", "00ff00", "Disconnected.");
         }
     }
 

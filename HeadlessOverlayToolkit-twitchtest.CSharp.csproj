@@ -5,16 +5,16 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0A44FD87-305E-6AA5-8803-843E7DC44199}</ProjectGuid>
+    <ProjectGuid>{24C9487B-CB7B-F82A-BD0E-CF8E8214C366}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
-    <UnityProjectType>Editor:5</UnityProjectType>
+    <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.3.5f1</UnityVersion>
     <RootNamespace></RootNamespace>
@@ -52,58 +52,52 @@
     <Reference Include="UnityEngine">
       <HintPath>Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor">
-      <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Advertisements">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Advertisements.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>Library\UnityAssemblies\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.EditorTestsRunner">
-      <HintPath>Library\UnityAssemblies\UnityEditor.EditorTestsRunner.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.TreeEditor">
-      <HintPath>Library\UnityAssemblies\UnityEditor.TreeEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Graphs">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Graphs.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.WindowsStandalone.Extensions">
-      <HintPath>Library\UnityAssemblies\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
-      <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
+    <Reference Include="UnityEditor">
+      <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="HeadlessOverlayToolkit.CSharp.Plugins.csproj">
-      <Project>{471817E4-67A9-BA4F-2262-A19C91959061}</Project>
-      <Name>HeadlessOverlayToolkit.CSharp.Plugins</Name>
-    </ProjectReference>
-    <ProjectReference Include="HeadlessOverlayToolkit.CSharp.csproj">
-      <Project>{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}</Project>
-      <Name>HeadlessOverlayToolkit.CSharp</Name>
+    <ProjectReference Include="HeadlessOverlayToolkit-twitchtest.CSharp.Plugins.csproj">
+      <Project>{DC37B3E2-C1FD-E823-1FC0-3FAE158CBBC7}</Project>
+      <Name>HeadlessOverlayToolkit-twitchtest.CSharp.Plugins</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Editor\HOTK\HOTK_OverlayInspector.cs" />
-    <Compile Include="Assets\SteamVR\Editor\SteamVR_Editor.cs" />
-    <Compile Include="Assets\SteamVR\Editor\SteamVR_Settings.cs" />
-    <Compile Include="Assets\SteamVR\Editor\SteamVR_Update.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\AlphaMatchInputField.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\AttachUIToScreen.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\DropdownHideWhenNotController.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\DropdownMatchEnumOptions.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\HOTK_DemoDesktopCameraScript.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\InputFieldHideAnimationSettingsWhenNotSelected.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\MaterialColorMatchSlider.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\OffsetMatchInputField.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\OffsetMatchSlider.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\ScaleMatchInputField.cs" />
+    <Compile Include="Assets\HOTK\HOTK_Overlay.cs" />
+    <Compile Include="Assets\HOTK\HOTK_TrackedDevice.cs" />
+    <Compile Include="Assets\HOTK\HOTK_TrackedDeviceManager.cs" />
+    <Compile Include="Assets\HOTK\Twitch\TwitchChatTester.cs" />
+    <Compile Include="Assets\HOTK\Twitch\TwitchIRC.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraFlip.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraMask.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Controller.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_ControllerManager.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Ears.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_ExternalCamera.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Frustum.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_GameView.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Overlay.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Render.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_TrackedObject.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\SteamVR\Resources\SteamVR_Blit.shader" />

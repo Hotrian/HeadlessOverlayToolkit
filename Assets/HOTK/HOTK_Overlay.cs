@@ -471,7 +471,7 @@ public class HOTK_Overlay : MonoBehaviour
         {
             if (AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Alpha < Alpha2)
+                if (Alpha <= Alpha2)
                 {
                     if (_alpha < Alpha2)
                     {
@@ -494,7 +494,7 @@ public class HOTK_Overlay : MonoBehaviour
             }
             if (AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Scale < Scale2)
+                if (Scale <= Scale2)
                 {
                     if (_scale < Scale2)
                     {
