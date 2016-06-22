@@ -7,6 +7,20 @@ using UnityEngine.UI;
 [RequireComponent(typeof(TwitchIRC), typeof(TextMesh))]
 public class TwitchChatTester : MonoBehaviour
 {
+    public struct TwitchChat
+    {
+        public readonly string Name;
+        public readonly string Color;
+        public readonly string Message;
+
+        public TwitchChat(string name, string color, string message)
+        {
+            Name = name;
+            Color = color;
+            Message = message;
+        }
+    }
+
     public InputField UsernameBox;
     public InputField OAuthBox;
     public InputField ChannelBox;
@@ -27,7 +41,7 @@ public class TwitchChatTester : MonoBehaviour
 
     private Dictionary<string, string> _userColors = new Dictionary<string, string>();
 
-    private List<string> _userChat = new List<string>();
+    private List<TwitchChat> _userChat = new List<TwitchChat>();
 
     private bool connected = false;
 
@@ -118,33 +132,46 @@ public class TwitchChatTester : MonoBehaviour
 
     private void AddMsg(string name, string color, string chat)
     {
-        _userChat.Add(string.Format("<color=#00{0}>{1}</color>: {2}", color, name, chat));
+        _userChat.Add(new TwitchChat(name, color, chat));
 
-        while (_userChat.Count > 12)
+        while (_userChat.Count > 27)
         {
             _userChat.RemoveAt(0);
         }
-        var text = _userChat.Aggregate("", (current, t) => current + t + "\n");
         
-        WordWrapText(text);
+        WordWrapText(_userChat);
     }
 
-    private void WordWrapText(string text)
+    private void WordWrapText(List<TwitchChat> messages)
     {
-        var builder = "";
+        var lines = new List<string>();
         TextMesh.text = "";
         var ren = TextMesh.GetComponent<Renderer>();
-        var rowLimit = 1.02f; //find the sweet spot
-        var parts = text.Split(' ');
-        foreach (var t in parts)
+        var rowLimit = 0.9f; //find the sweet spot
+        foreach (var m in messages)
         {
-            TextMesh.text += t + " ";
-            if (ren.bounds.extents.x > rowLimit)
+            TextMesh.text = string.Format("{0}: ", m.Name);
+            var builder = string.Format("<color=#00{0}>{1}</color>: ", m.Color, m.Name);
+            var parts = m.Message.Split(' ');
+            foreach (var t in parts)
             {
-                TextMesh.text = builder.TrimEnd() + System.Environment.NewLine + t + " ";
+                TextMesh.text += t + " ";
+                if (ren.bounds.extents.x > rowLimit)
+                {
+                    lines.Add(builder.TrimEnd() + System.Environment.NewLine);
+                    TextMesh.text = "";
+                    builder = "";
+                }
+                builder += t + " ";
             }
-            builder = TextMesh.text;
+
+            if (builder != "")
+            {
+                lines.Add(builder.TrimEnd() + System.Environment.NewLine);
+            }
         }
+        
+        TextMesh.text = lines.Aggregate("", (current, t) => current + t);
     }
 
     public static string colorToHex(Color32 color)
