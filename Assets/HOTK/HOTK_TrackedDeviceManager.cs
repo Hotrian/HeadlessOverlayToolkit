@@ -41,14 +41,14 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
 
     public void Awake()
     {
-        FindControllers();
         FindHMD();
+        FindControllers();
     }
 
     public void Update()
     {
-        FindControllers();
         FindHMD();
+        FindControllers();
         UpdatePoses();
     }
 
@@ -244,7 +244,7 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
     /// <param name="text"></param>
     void Log(string text)
     {
-        Debug.Log(text);
+        TwitchChatTester.Instance.AddSystemNotice(text);
     }
     /// <summary>
     /// This is just used to quickly enable/disable LogWarning messages.
@@ -252,6 +252,6 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
     /// <param name="text"></param>
     void LogWarning(string text)
     {
-        Debug.LogWarning(text);
+        TwitchChatTester.Instance.AddSystemNotice(text, true);
     }
 }

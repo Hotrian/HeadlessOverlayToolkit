@@ -121,7 +121,7 @@ public class DropdownSaveLoadController : MonoBehaviour
     {
         TwitchSettings settings;
         if (!TwitchSettingsSaver.SavedSettings.TryGetValue(Dropdown.options[Dropdown.value].text, out settings)) return;
-        Debug.Log("Loading saved settings " + Dropdown.options[Dropdown.value].text);
+        TwitchChatTester.Instance.AddSystemNotice("Loading saved settings " + Dropdown.options[Dropdown.value].text);
         TwitchSettingsSaver.Current = Dropdown.options[Dropdown.value].text;
         UsernameField.text = settings.Username;
         ChannelField.text = settings.Channel;
@@ -161,7 +161,7 @@ public class DropdownSaveLoadController : MonoBehaviour
         {
             TwitchSettings settings;
             if (!TwitchSettingsSaver.SavedSettings.TryGetValue(Dropdown.options[Dropdown.value].text, out settings)) return;
-            Debug.Log("Overwriting saved settings " + Dropdown.options[Dropdown.value].text);
+            TwitchChatTester.Instance.AddSystemNotice("Overwriting saved settings " + Dropdown.options[Dropdown.value].text);
             settings.Username = UsernameField.text;
             settings.Channel = ChannelField.text;
             settings.X = OverlayToSave.AnchorOffset.x; settings.Y = OverlayToSave.AnchorOffset.y; settings.Z = OverlayToSave.AnchorOffset.z;
@@ -185,7 +185,7 @@ public class DropdownSaveLoadController : MonoBehaviour
     {
         if (string.IsNullOrEmpty(SaveName.text) || TwitchSettingsSaver.SavedSettings.ContainsKey(SaveName.text)) return;
         SavingNew = false;
-        Debug.Log("Adding saved settings " + SaveName.text);
+        TwitchChatTester.Instance.AddSystemNotice("Adding saved settings " + SaveName.text);
         TwitchSettingsSaver.SavedSettings.Add(SaveName.text, ConvertToTwitchSettings(OverlayToSave));
         TwitchSettingsSaver.Save();
         SaveName.text = "";

@@ -62,4 +62,6 @@ To run the twitchtest variant headless, you'll have to modify the scripts so tha
 
 **Special Thanks:**
 
-Thanks to Grahnz for the [TwitchIRC.cs](https://github.com/Grahnz/TwitchIRC-Unity/blob/master/TwitchIRC.cs) script!
+Thanks to Grahnz for the base [TwitchIRC.cs](https://github.com/Grahnz/TwitchIRC-Unity/blob/master/TwitchIRC.cs) script!
+
+Thanks to [Eric Daily](http://tutsplus.com/authors/eric-daily) for the base [SaveLoad](http://gamedevelopment.tutsplus.com/tutorials/how-to-save-and-load-your-players-progress-in-unity--cms-20934) script!

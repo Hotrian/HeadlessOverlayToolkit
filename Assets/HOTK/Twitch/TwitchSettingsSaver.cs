@@ -28,22 +28,20 @@ public static class TwitchSettingsSaver
     //it's static so we can call it from anywhere
     public static void Save()
     {
-        BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.persistentDataPath + "/savedSettings.gd");
+        var bf = new BinaryFormatter();
+        var file = File.Create(Application.persistentDataPath + "/savedSettings.gd");
         bf.Serialize(file, SavedSettings);
         file.Close();
-        Debug.Log("Saved " + SavedSettings.Count + " config(s).");
+        TwitchChatTester.Instance.AddSystemNotice("Saved " + SavedSettings.Count + " config(s).");
     }
 
     public static void Load()
     {
-        if (File.Exists(Application.persistentDataPath + "/savedSettings.gd"))
-        {
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/savedSettings.gd", FileMode.Open);
-            SavedSettings = (Dictionary<string, TwitchSettings>)bf.Deserialize(file);
-            file.Close();
-            Debug.Log("Loaded " + SavedSettings.Count + " config(s).");
-        }
+        if (!File.Exists(Application.persistentDataPath + "/savedSettings.gd")) return;
+        var bf = new BinaryFormatter();
+        var file = File.Open(Application.persistentDataPath + "/savedSettings.gd", FileMode.Open);
+        SavedSettings = (Dictionary<string, TwitchSettings>)bf.Deserialize(file);
+        file.Close();
+        TwitchChatTester.Instance.AddSystemNotice("Loaded " + SavedSettings.Count + " config(s).");
     }
 }

@@ -5,28 +5,27 @@ using System.Collections.Generic;
 
 public class TwitchIRC : MonoBehaviour
 {
-    public string oauth;
-    public string nickName;
-    public string channelName;
-    private string server = "irc.twitch.tv";
-    private int port = 6667;
+    public string Oauth;
+    public string NickName;
+    public string ChannelName;
+    private const string Server = "irc.twitch.tv";
+    private const int Port = 6667;
 
     //event(buffer).
     public class MsgEvent : UnityEngine.Events.UnityEvent<string> { }
-    public MsgEvent messageRecievedEvent = new MsgEvent();
+    public MsgEvent MessageRecievedEvent = new MsgEvent();
 
-    private string buffer = string.Empty;
-    private bool stopThreads = false;
-    private Queue<string> commandQueue = new Queue<string>();
-    private List<string> recievedMsgs = new List<string>();
-    private System.Threading.Thread inProc, outProc;
+    private string _buffer = string.Empty;
+    private bool _stopThreads;
+    private readonly Queue<string> _commandQueue = new Queue<string>();
+    private readonly List<string> _recievedMsgs = new List<string>();
+    private System.Threading.Thread _inProc, _outProc;
 
     public void StartIRC()
     {
-        stopThreads = false;
-        Debug.Log("Connecting to Twitch IRC: irc.twitch.tv#" + channelName);
-        System.Net.Sockets.TcpClient sock = new System.Net.Sockets.TcpClient();
-        sock.Connect(server, port);
+        _stopThreads = false;
+        var sock = new System.Net.Sockets.TcpClient();
+        sock.Connect(Server, Port);
         if (!sock.Connected)
         {
             Debug.Log("Failed to connect!");
@@ -37,45 +36,45 @@ public class TwitchIRC : MonoBehaviour
         var output = new System.IO.StreamWriter(networkStream);
 
         //Send PASS & NICK.
-        output.WriteLine("PASS " + oauth);
-        output.WriteLine("NICK " + nickName.ToLower());
+        output.WriteLine("PASS " + Oauth);
+        output.WriteLine("NICK " + NickName.ToLower());
         output.Flush();
 
         //output proc
-        outProc = new System.Threading.Thread(() => IRCOutputProcedure(output));
-        outProc.Start();
+        _outProc = new System.Threading.Thread(() => IRCOutputProcedure(output));
+        _outProc.Start();
         //input proc
-        inProc = new System.Threading.Thread(() => IRCInputProcedure(input, networkStream));
-        inProc.Start();
+        _inProc = new System.Threading.Thread(() => IRCInputProcedure(input, networkStream));
+        _inProc.Start();
     }
     private void IRCInputProcedure(System.IO.TextReader input, System.Net.Sockets.NetworkStream networkStream)
     {
-        while (!stopThreads)
+        while (!_stopThreads)
         {
             if (!networkStream.DataAvailable)
                 continue;
 
-            buffer = input.ReadLine();
-
-            //was message?
-            if (buffer.Contains("PRIVMSG #"))
+            _buffer = input.ReadLine();
+            
+            if (_buffer == null) continue;
+            if (_buffer.Contains("PRIVMSG #") || _buffer.Split(' ')[1] == "NOTICE")
             {
-                lock (recievedMsgs)
+                lock (_recievedMsgs)
                 {
-                    recievedMsgs.Add(buffer);
+                    _recievedMsgs.Add(_buffer);
                 }
             }
-
-            //Send pong reply to any ping messages
-            if (buffer.StartsWith("PING "))
+            else if (_buffer.StartsWith("PING "))
             {
-                SendCommand(buffer.Replace("PING", "PONG"));
+                SendCommand(_buffer.Replace("PING", "PONG"));
             }
-
-            //After server sends 001 command, we can join a channel
-            if (buffer.Split(' ')[1] == "001")
+            else if (_buffer.Split(' ')[1] == "001")
             {
-                SendCommand("JOIN #" + channelName);
+                lock (_recievedMsgs)
+                {
+                    _recievedMsgs.Add(TwitchChatTester.ToTwitchNotice("Connected!"));
+                }
+                SendCommand("JOIN #" + ChannelName);
             }
         }
     }
@@ -83,80 +82,62 @@ public class TwitchIRC : MonoBehaviour
     {
         System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
         stopWatch.Start();
-        while (!stopThreads)
+        while (!_stopThreads)
         {
-            lock (commandQueue)
+            lock (_commandQueue)
             {
-                if (commandQueue.Count > 0) //do we have any commands to send?
-                {
-                    // https://github.com/justintv/Twitch-API/blob/master/IRC.md#command--message-limit 
-                    //have enough time passed since we last sent a message/command?
-                    if (stopWatch.ElapsedMilliseconds > 1750)
-                    {
-                        //send msg.
-                        output.WriteLine(commandQueue.Peek());
-                        output.Flush();
-                        //remove msg from queue.
-                        commandQueue.Dequeue();
-                        //restart stopwatch.
-                        stopWatch.Reset();
-                        stopWatch.Start();
-                    }
-                }
+                if (_commandQueue.Count <= 0) continue;
+                // https://github.com/justintv/Twitch-API/blob/master/IRC.md#command--message-limit 
+                //have enough time passed since we last sent a message/command?
+                if (stopWatch.ElapsedMilliseconds <= 1750) continue;
+                //send msg.
+                output.WriteLine(_commandQueue.Peek());
+                output.Flush();
+                //remove msg from queue.
+                _commandQueue.Dequeue();
+                //restart stopwatch.
+                stopWatch.Reset();
+                stopWatch.Start();
             }
         }
     }
 
     public void SendCommand(string cmd)
     {
-        lock (commandQueue)
+        lock (_commandQueue)
         {
-            commandQueue.Enqueue(cmd);
+            _commandQueue.Enqueue(cmd);
         }
     }
     public void SendMsg(string msg)
     {
-        lock (commandQueue)
+        lock (_commandQueue)
         {
-            commandQueue.Enqueue("PRIVMSG #" + channelName + " :" + msg);
+            _commandQueue.Enqueue("PRIVMSG #" + ChannelName + " :" + msg);
         }
     }
-
-    //MonoBehaviour Events.
-    void Start()
+    public void OnEnable()
     {
+        _stopThreads = false;
     }
-    void OnEnable()
+    public void OnDisable()
     {
-        stopThreads = false;
-        //StartIRC();
+        _stopThreads = true;
     }
-    void OnDisable()
+    public void OnDestroy()
     {
-        stopThreads = true;
-        //while (inProc.IsAlive || outProc.IsAlive) ;
-        //print("inProc:" + inProc.IsAlive.ToString());
-        //print("outProc:" + outProc.IsAlive.ToString());
+        _stopThreads = true;
     }
-    void OnDestroy()
+    public void Update()
     {
-        stopThreads = true;
-        //while (inProc.IsAlive || outProc.IsAlive) ;
-        //print("inProc:" + inProc.IsAlive.ToString());
-        //print("outProc:" + outProc.IsAlive.ToString());
-    }
-    void Update()
-    {
-        lock (recievedMsgs)
+        lock (_recievedMsgs)
         {
-            if (recievedMsgs.Count > 0)
+            if (_recievedMsgs.Count <= 0) return;
+            foreach (var t in _recievedMsgs)
             {
-                for (int i = 0; i < recievedMsgs.Count; i++)
-                {
-                    messageRecievedEvent.Invoke(recievedMsgs[i]);
-                }
-                recievedMsgs.Clear();
+                MessageRecievedEvent.Invoke(t);
             }
+            _recievedMsgs.Clear();
         }
     }
 }
