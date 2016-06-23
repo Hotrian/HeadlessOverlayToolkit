@@ -471,7 +471,7 @@ public class HOTK_Overlay : MonoBehaviour
         {
             if (AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Alpha < Alpha2)
+                if (Alpha <= Alpha2)
                 {
                     if (_alpha < Alpha2)
                     {
@@ -494,7 +494,7 @@ public class HOTK_Overlay : MonoBehaviour
             }
             if (AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Scale < Scale2)
+                if (Scale <= Scale2)
                 {
                     if (_scale < Scale2)
                     {
@@ -579,7 +579,7 @@ public class HOTK_Overlay : MonoBehaviour
         if (_hmdTracker != null && _hmdTracker.IsValid)
         {
             var result = new IntersectionResults();
-            hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, new Vector3(0f, 0f, 1f), ref result);
+            hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, _hmdTracker.gameObject.transform.forward, ref result);
             //Debug.Log("Hit! " + gameObject.name);
         }
         HandleAnimateOnGaze(hit, ref changed);
@@ -607,7 +607,7 @@ public class HOTK_Overlay : MonoBehaviour
                 eType = SteamVR.instance.graphicsAPI,
                 eColorSpace = EColorSpace.Auto
             };
-
+            overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
             overlay.SetOverlayTexture(_handle, ref tex);
             overlay.SetOverlayAlpha(_handle, AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale ? _alpha : Alpha);
             overlay.SetOverlayWidthInMeters(_handle, AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale ? _scale : Scale);
