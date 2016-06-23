@@ -71,8 +71,11 @@
   <ItemGroup>
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\AlphaMatchInputField.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\AttachUIToScreen.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\ButtonHideWhenNotController.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\ButtonSwapControllers.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\DropdownHideWhenNotController.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\DropdownMatchEnumOptions.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\DropdownSaveLoadController.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\HOTK_DemoDesktopCameraScript.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\InputFieldHideAnimationSettingsWhenNotSelected.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\MaterialColorMatchSlider.cs" />
@@ -84,6 +87,7 @@
     <Compile Include="Assets\HOTK\HOTK_TrackedDeviceManager.cs" />
     <Compile Include="Assets\HOTK\Twitch\TwitchChatTester.cs" />
     <Compile Include="Assets\HOTK\Twitch\TwitchIRC.cs" />
+    <Compile Include="Assets\HOTK\Twitch\TwitchSettingsSaver.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
     <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraFlip.cs" />

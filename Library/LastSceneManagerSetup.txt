@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Default.unity
+- path: Assets/HOTK/Example Content/HOTK_TwitchDemoScene.unity
   isLoaded: 1
   isActive: 1
