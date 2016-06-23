@@ -58,6 +58,16 @@ public class DropdownMatchEnumOptions : MonoBehaviour
         }
     }
 
+    public void SetToOption(string text)
+    {
+        for (var i = 0; i < Dropdown.options.Count; i ++)
+        {
+            if (Dropdown.options[i].text != text) continue;
+            Dropdown.value = i;
+            break;
+        }
+    }
+
     public enum EnumSelection 
     {
         AttachmentDevice,

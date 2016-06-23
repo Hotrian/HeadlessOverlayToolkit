@@ -101,6 +101,24 @@ public class HOTK_Overlay : MonoBehaviour
             UpdateRenderTexture();
     }
 
+    public void Start()
+    {
+        HOTK_TrackedDeviceManager.OnControllerIndexChanged += OnControllerIndexChanged;
+    }
+
+    // If the controller we are tracking changes index, update
+    private void OnControllerIndexChanged(ETrackedControllerRole role, uint index)
+    {
+        if (_anchorDevice == AttachmentDevice.LeftController && role == ETrackedControllerRole.LeftHand)
+        {
+            _anchorDevice = AttachmentDevice.World; // This will trick the system into reattaching the overlay
+        }
+        else if (_anchorDevice == AttachmentDevice.RightController && role == ETrackedControllerRole.RightHand)
+        {
+            _anchorDevice = AttachmentDevice.World; // This will trick the system into reattaching the overlay
+        }
+    }
+
     /// <summary>
     /// When enabled, Create the Overlay and reset cached values.
     /// </summary>

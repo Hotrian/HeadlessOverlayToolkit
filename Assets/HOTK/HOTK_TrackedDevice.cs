@@ -109,16 +109,39 @@ public class HOTK_TrackedDevice : MonoBehaviour
         }
     }
 
+    public void Start()
+    {
+        HOTK_TrackedDeviceManager.OnControllerIndexChanged += OnControllerIndexChanged;
+    }
+
+    // If the controller we are tracking changes index, update
+    private void OnControllerIndexChanged(ETrackedControllerRole role, uint index)
+    {
+        if (Type == EType.LeftController && role == ETrackedControllerRole.LeftHand)
+        {
+            Reset();
+        }
+        else if(Type == EType.RightController && role == ETrackedControllerRole.RightHand)
+        {
+            Reset();
+        }
+    }
+
     public void OnEnable()
     {
-        Index = EIndex.None;
-        IsValid = false;
+        Reset();
         SteamVR_Utils.Event.Listen("new_poses", OnNewPoses);
     }
 
     public void OnDisable()
     {
         SteamVR_Utils.Event.Remove("new_poses", OnNewPoses);
+        Reset();
+    }
+
+    private void Reset()
+    {
+        Index = EIndex.None;
         IsValid = false;
     }
 }
