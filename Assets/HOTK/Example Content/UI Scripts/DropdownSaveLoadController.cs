@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Dropdown))]
 public class DropdownSaveLoadController : MonoBehaviour
 {
-
-
     public HOTK_Overlay OverlayToSave;
 
     public InputField UsernameField;
@@ -42,7 +38,6 @@ public class DropdownSaveLoadController : MonoBehaviour
     public Button SaveNewButton;
     public Button CancelNewButton;
 
-
     public Dropdown Dropdown
     {
         get { return _dropdown ?? (_dropdown = GetComponent<Dropdown>()); }
@@ -51,11 +46,6 @@ public class DropdownSaveLoadController : MonoBehaviour
     private Dropdown _dropdown;
 
     private static string NewString = "New..";
-
-	// Use this for initialization
-	void Start () {
-	
-	}
 
     public void OnEnable()
     {
@@ -232,9 +222,4 @@ public class DropdownSaveLoadController : MonoBehaviour
             SaveNewButton.interactable = true;
         }
     }
-
-    // Update is called once per frame
-    void Update () {
-	
-	}
 }
