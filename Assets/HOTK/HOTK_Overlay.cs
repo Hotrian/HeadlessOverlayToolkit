@@ -489,48 +489,34 @@ public class HOTK_Overlay : MonoBehaviour
         {
             if (AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Alpha <= Alpha2)
+                if (_alpha < Alpha2)
                 {
-                    if (_alpha < Alpha2)
-                    {
-                        _alpha += AlphaSpeed;
-                        changed = true;
-                        if (_alpha > Alpha2)
-                            _alpha = Alpha2;
-                    }
-                }
-                else // Not sure why you'd want it to fade out on gaze, but just in case
-                {
+                    _alpha += AlphaSpeed;
+                    changed = true;
                     if (_alpha > Alpha2)
-                    {
-                        _alpha -= AlphaSpeed;
-                        changed = true;
-                        if (_alpha < Alpha2)
-                            _alpha = Alpha2;
-                    }
+                        _alpha = Alpha2;
+                }else if (_alpha > Alpha2)
+                {
+                    _alpha -= AlphaSpeed;
+                    changed = true;
+                    if (_alpha < Alpha2)
+                        _alpha = Alpha2;
                 }
             }
             if (AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Scale <= Scale2)
+                if (_scale < Scale2)
                 {
-                    if (_scale < Scale2)
-                    {
-                        _scale += ScaleSpeed;
-                        changed = true;
-                        if (_scale > Scale2)
-                            _scale = Scale2;
-                    }
-                }
-                else // Not sure why you'd want it to scale down on gaze, but just in case
-                {
+                    _scale += ScaleSpeed;
+                    changed = true;
                     if (_scale > Scale2)
-                    {
-                        _scale -= ScaleSpeed;
-                        changed = true;
-                        if (_scale < Scale2)
-                            _scale = Scale2;
-                    }
+                        _scale = Scale2;
+                }else if (_scale > Scale2)
+                {
+                    _scale -= ScaleSpeed;
+                    changed = true;
+                    if (_scale < Scale2)
+                        _scale = Scale2;
                 }
             }
         }
@@ -538,49 +524,34 @@ public class HOTK_Overlay : MonoBehaviour
         {
             if (AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Alpha < Alpha2)
+                if (_alpha > Alpha)
                 {
-                    if (_alpha > Alpha)
-                    {
-                        _alpha -= AlphaSpeed;
-                        changed = true;
-                        if (_alpha < Alpha)
-                            _alpha = Alpha;
-                    }
-                }
-                else // Not sure why you'd want it to fade in when you look away from it, but just in case
-                {
+                    _alpha -= AlphaSpeed;
+                    changed = true;
                     if (_alpha < Alpha)
-                    {
-                        _alpha += AlphaSpeed;
-                        changed = true;
-                        if (_alpha > Alpha)
-                            _alpha = Alpha;
-                    }
+                        _alpha = Alpha;
+                }else if (_alpha < Alpha)
+                {
+                    _alpha += AlphaSpeed;
+                    changed = true;
+                    if (_alpha > Alpha)
+                        _alpha = Alpha;
                 }
             }
-
             if (AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale)
             {
-                if (Scale < Scale2)
+                if (_scale > Scale)
                 {
-                    if (_scale > Scale)
-                    {
-                        _scale -= ScaleSpeed;
-                        changed = true;
-                        if (_scale < Scale)
-                            _scale = Scale;
-                    }
-                }
-                else // Not sure why you'd want it to scale up when you look away from it, but just in case
-                {
+                    _scale -= ScaleSpeed;
+                    changed = true;
                     if (_scale < Scale)
-                    {
-                        _scale += ScaleSpeed;
-                        changed = true;
-                        if (_scale > Scale)
-                            _scale = Scale;
-                    }
+                        _scale = Scale;
+                }else if (_scale < Scale)
+                {
+                    _scale += ScaleSpeed;
+                    changed = true;
+                    if (_scale > Scale)
+                        _scale = Scale;
                 }
             }
         }
