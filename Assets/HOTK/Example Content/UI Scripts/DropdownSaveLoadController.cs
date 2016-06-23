@@ -16,6 +16,10 @@ public class DropdownSaveLoadController : MonoBehaviour
     public OffsetMatchSlider YSlider;
     public OffsetMatchSlider ZSlider;
 
+    public RotationMatchSlider RXSlider;
+    public RotationMatchSlider RYSlider;
+    public RotationMatchSlider RZSlider;
+
     public DropdownMatchEnumOptions DeviceDropdown;
     public DropdownMatchEnumOptions PointDropdown;
     public DropdownMatchEnumOptions AnimationDropdown;
@@ -113,7 +117,7 @@ public class DropdownSaveLoadController : MonoBehaviour
         }
     }
 
-    public void OnLoadPressed()
+    public void OnLoadPressed() // Load an existing save
     {
         TwitchSettings settings;
         if (!TwitchSettingsSaver.SavedSettings.TryGetValue(Dropdown.options[Dropdown.value].text, out settings)) return;
@@ -125,6 +129,10 @@ public class DropdownSaveLoadController : MonoBehaviour
         XSlider.Slider.value = settings.X;
         YSlider.Slider.value = settings.Y;
         ZSlider.Slider.value = settings.Z;
+
+        RXSlider.Slider.value = settings.RX;
+        RYSlider.Slider.value = settings.RY;
+        RZSlider.Slider.value = settings.RZ;
 
         DeviceDropdown.SetToOption(settings.Device.ToString());
         PointDropdown.SetToOption(settings.Point.ToString());
@@ -144,12 +152,12 @@ public class DropdownSaveLoadController : MonoBehaviour
 
     public void OnSavePressed()
     {
-        if (Dropdown.options[Dropdown.value].text == NewString)
+        if (Dropdown.options[Dropdown.value].text == NewString) // Start creating a new save
         {
             SavingNew = true;
             OnValueChanges();
         }
-        else
+        else // Overwrite an existing save
         {
             TwitchSettings settings;
             if (!TwitchSettingsSaver.SavedSettings.TryGetValue(Dropdown.options[Dropdown.value].text, out settings)) return;
@@ -157,6 +165,7 @@ public class DropdownSaveLoadController : MonoBehaviour
             settings.Username = UsernameField.text;
             settings.Channel = ChannelField.text;
             settings.X = OverlayToSave.AnchorOffset.x; settings.Y = OverlayToSave.AnchorOffset.y; settings.Z = OverlayToSave.AnchorOffset.z;
+            settings.RX = OverlayToSave.transform.eulerAngles.x; settings.RY = OverlayToSave.transform.eulerAngles.y; settings.RZ = OverlayToSave.transform.eulerAngles.z;
 
             settings.Device = OverlayToSave.AnchorDevice;
             settings.Point = OverlayToSave.AnchorPoint;
@@ -183,13 +192,14 @@ public class DropdownSaveLoadController : MonoBehaviour
         ReloadOptions();
     }
 
-    private TwitchSettings ConvertToTwitchSettings(HOTK_Overlay o)
+    private TwitchSettings ConvertToTwitchSettings(HOTK_Overlay o) // Create a new save state
     {
         return new TwitchSettings()
         {
             Username = UsernameField.text,
             Channel = ChannelField.text,
             X = o.AnchorOffset.x, Y = o.AnchorOffset.y, Z = o.AnchorOffset.z,
+            RX = o.transform.eulerAngles.x, RY = o.transform.eulerAngles.y, RZ = o.transform.eulerAngles.z,
 
             Device = o.AnchorDevice,
             Point = o.AnchorPoint,

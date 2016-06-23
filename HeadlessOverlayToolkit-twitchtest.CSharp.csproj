@@ -81,6 +81,8 @@
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\MaterialColorMatchSlider.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\OffsetMatchInputField.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\OffsetMatchSlider.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\RotationMatchInputField.cs" />
+    <Compile Include="Assets\HOTK\Example Content\UI Scripts\RotationMatchSlider.cs" />
     <Compile Include="Assets\HOTK\Example Content\UI Scripts\ScaleMatchInputField.cs" />
     <Compile Include="Assets\HOTK\HOTK_Overlay.cs" />
     <Compile Include="Assets\HOTK\HOTK_TrackedDevice.cs" />

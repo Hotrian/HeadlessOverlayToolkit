@@ -9,6 +9,7 @@ public class TwitchSettings
     public string Username;
     public string Channel;
     public float X, Y, Z;
+    public float RX, RY, RZ;
     public HOTK_Overlay.AttachmentDevice Device;
     public HOTK_Overlay.AttachmentPoint Point;
     public HOTK_Overlay.AnimationType Animation;
