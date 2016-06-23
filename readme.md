@@ -2,7 +2,7 @@
 
 This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that displays twitch chat!
 
-To use this, Download and launch the latest release, and enter your Username, OAuth Key (get your [OAuth Key here](http://www.twitchapps.com/tmi/)) and the desired Channel, then press "Press to Connect" and it should momentarilly connect to your Twitch chat. Check behind one of your controllers (should be left!) for your chat display! It should zoom up when you look at it.
+To use this, Download and launch [the latest release](https://github.com/Hotrian/HeadlessOverlayToolkit/releases), and enter your Twitch Username, OAuth Key (get your [OAuth Key here](http://www.twitchapps.com/tmi/)) and the desired Channel, then press "Press to Connect" and it should momentarilly connect to your Twitch chat. Check behind one of your controllers (should be left!) for your chat display! It should zoom up when you look at it.
 
 Note that you can copy and paste your oauth key, you don't have to manually type it out, but you do have to get it off that site, or off another site that generates Twitch OAuth keys.
 
@@ -33,6 +33,10 @@ Note that these demos were taken during development, and do not necessarily repr
 
 **Additional Notes:**
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
+
+**How can I help?**
+
+If you know how to program, we could always use help! Feel free to fork the repo and improve it in any way you see fit; but if you don't know how but still want to contribute, we always need more beta testers! Download the release and share it around! If you want to do more, donations are always cool too! You'll be funding my programming endeavors, including cool projects like these VR Overlays: [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8PWSSHWNCWWQU)
 
 **Special Thanks:**
 
