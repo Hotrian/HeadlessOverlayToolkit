@@ -12,7 +12,8 @@ To use this, load up the HOTK_TwitchDemoScene, press Play, and enter your Userna
 Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
 - ![Here is a GIF](https://thumbs.gfycat.com/SinfulHonestGenet-size_restricted.gif)
 - Please see this [higher quality view of the GIF above](https://gfycat.com/SinfulHonestGenet) of the Twitch Chat in action!
-- [**Check out** this Youtube Video](https://www.youtube.com/watch?v=JMk7Vy1Zq_s) which shows the desktop UI in action!
+- [Check out this Youtube Video](https://www.youtube.com/watch?v=JMk7Vy1Zq_s) which shows the desktop UI in action!
+- [**Here it is inside TiltBrush!**](https://www.youtube.com/watch?v=tpqIQ5UkGrY) The text is perfectly readable in headset, but seems a little far away on the Display Mirror :P
 
 **Features:**
 - See Twitch Chat in VR! From Any Game!
@@ -21,18 +22,19 @@ Note that these demos were taken during development, and do not necessarily repr
 - Offset Chat positionally and rotationally.
 - Custom Inspector with Undo support.
 - Basic Gaze Detection and Animation support (Fade In/Out or Scale Up/Down on Gaze).
+- Extremely Basic Save/Load Support! Saves Username/Channel but does not save OAuth Key!
 
 **Known Issues:**
 - There is no feedback when you type in an incorrect Username, OAuth, or Channel. If you press connect and do not receive messages, double check your spelling!
 - SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers for me, so I wrote my own manager, HOTK_TrackedDeviceManager.cs. My Device Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis. If only one Controller is connected, and it isn't already assigned, it will be assigned to the right hand.
-- There is no saving/loading! You'll have to reconfigure everything each time if you use the build. Download the source and customize it with Unity right now to get around this!
+- If you launch it and nothing happens in VR, check the Data folder for output_log.txt and look for "Connect to VR Server Failed (301)" If you are getting this, try relaunching as Admin and if that doesn't work try launching as Admin in Compatability mode, some users have found that it only works this way, but I am not sure why yet.
 
 **Additional Notes:**
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
 - The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
 - Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
 
-**Quick Start:**
+**Quick Start** for Unity Editor:
 - Download and Install [Unity](https://unity3d.com/get-unity/download?ref=personal) (I'm using version 5.3.5f1)
 - Download [the repo as a zip](https://github.com/Hotrian/HeadlessOverlayToolkit/archive/twitchtest.zip) and unzip the folder inside.
 - Launch Unity
