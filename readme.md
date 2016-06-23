@@ -23,7 +23,7 @@ Note that these demos were taken during development, and do not necessarily repr
 - Easily snap Controller attached Chat to a set "Base Position".
 - Offset Chat positionally and rotationally.
 - Basic Gaze Detection and Animation support (Fade In/Out or Scale Up/Down on Gaze).
-- Extremely Basic Save/Load Support! Saves Username/Channel but does not save OAuth Key!
+- Extremely Basic Save/Load Support! Saves all settings except OAuth Key!
 
 **Known Issues:**
 - SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers for me, so I wrote my own manager, HOTK_TrackedDeviceManager.cs. My Device Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis. If only one Controller is connected, and it isn't already assigned, it will be assigned to the right hand.
