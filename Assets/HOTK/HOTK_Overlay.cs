@@ -579,7 +579,7 @@ public class HOTK_Overlay : MonoBehaviour
         if (_hmdTracker != null && _hmdTracker.IsValid)
         {
             var result = new IntersectionResults();
-            hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, new Vector3(0f, 0f, 1f), ref result);
+            hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, _hmdTracker.gameObject.transform.forward, ref result);
             //Debug.Log("Hit! " + gameObject.name);
         }
         HandleAnimateOnGaze(hit, ref changed);
