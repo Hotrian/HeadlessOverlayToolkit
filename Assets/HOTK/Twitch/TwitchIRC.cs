@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 public class TwitchIRC : MonoBehaviour
 {
@@ -52,7 +53,10 @@ public class TwitchIRC : MonoBehaviour
         while (!_stopThreads)
         {
             if (!networkStream.DataAvailable)
+            {
+                Thread.Sleep(20);
                 continue;
+            }
 
             _buffer = input.ReadLine();
             
@@ -86,10 +90,18 @@ public class TwitchIRC : MonoBehaviour
         {
             lock (_commandQueue)
             {
-                if (_commandQueue.Count <= 0) continue;
+                if (_commandQueue.Count <= 0)
+                {
+                    Thread.Sleep(20);
+                    continue;
+                }
                 // https://github.com/justintv/Twitch-API/blob/master/IRC.md#command--message-limit 
                 //have enough time passed since we last sent a message/command?
-                if (stopWatch.ElapsedMilliseconds <= 1750) continue;
+                if (stopWatch.ElapsedMilliseconds <= 1750)
+                {
+                    Thread.Sleep(20);
+                    continue;
+                }
                 //send msg.
                 output.WriteLine(_commandQueue.Peek());
                 output.Flush();
