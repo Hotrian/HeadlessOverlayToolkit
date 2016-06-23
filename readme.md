@@ -19,7 +19,7 @@ Note that these demos were taken during development, and do not necessarily repr
 - See Twitch Chat in VR! From Any Game!
 - Easily attach Chat to the Screen, a Controller, or drop it in the World.
 - Easily snap Controller attached Chat to a set "Base Position".
-- Offset Chat positionally and rotationally.
+- Offset Chat positionally and rotationally. (build currently missing rotation control, but works with Unity Editor)
 - Custom Inspector with Undo support.
 - Basic Gaze Detection and Animation support (Fade In/Out or Scale Up/Down on Gaze).
 - Extremely Basic Save/Load Support! Saves Username/Channel but does not save OAuth Key!
@@ -28,6 +28,7 @@ Note that these demos were taken during development, and do not necessarily repr
 - There is no feedback when you type in an incorrect Username, OAuth, or Channel. If you press connect and do not receive messages, double check your spelling!
 - SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers for me, so I wrote my own manager, HOTK_TrackedDeviceManager.cs. My Device Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis. If only one Controller is connected, and it isn't already assigned, it will be assigned to the right hand.
 - If you launch it and nothing happens in VR, check the Data folder for output_log.txt and look for "Connect to VR Server Failed (301)" If you are getting this, try relaunching as Admin and if that doesn't work try launching as Admin in Compatability mode, some users have found that it only works this way, but I am not sure why yet.
+- The build is currently missing the ability to Rotate the Overlays. This will be added in a future version, but if you need to rotate them now, download the source and run it with Unity and rotate the Overlay Gameobject.
 
 **Additional Notes:**
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
