@@ -67,13 +67,18 @@ public class TwitchChatTester : MonoBehaviour
                 {
                     if (ChannelBox != null && ChannelBox.text != "")
                     {
+                        if (ChannelBox.text.Contains(" "))
+                        {
+                            AddSystemNotice("Channel name invalid!", TwitchIRC.NoticeColor.Red);
+                            return;
+                        }
                         UsernameBox.interactable = false;
                         OAuthBox.interactable = false;
                         ChannelBox.interactable = false;
                         ConnectButtonText.text = "Press to Disconnect";
 
                         _connected = true;
-                        OnChatMsg(ToTwitchNotice(string.Format("Logging into #{0} as {1}!", ChannelBox.text, UsernameBox.text)));
+                        OnChatMsg(TwitchIRC.ToTwitchNotice(string.Format("Logging into #{0} as {1}!", ChannelBox.text, UsernameBox.text)));
                         IRC.NickName = UsernameBox.text;
                         IRC.Oauth = OAuthBox.text;
                         IRC.ChannelName = ChannelBox.text.ToLower();
@@ -82,11 +87,11 @@ public class TwitchChatTester : MonoBehaviour
                         IRC.MessageRecievedEvent.AddListener(OnChatMsg);
                         IRC.StartIRC();
                     }
-                    else OnChatMsg(ToTwitchNotice("Unable to Connect: Enter a Valid Channel Name!", true));
+                    else AddSystemNotice("Unable to Connect: Enter a Valid Channel Name!", TwitchIRC.NoticeColor.Red);
                 }
-                else OnChatMsg(ToTwitchNotice("Unable to Connect: Enter a Valid OAuth Key! http://www.twitchapps.com/tmi/", true));
+                else AddSystemNotice("Unable to Connect: Enter a Valid OAuth Key! http://www.twitchapps.com/tmi/", TwitchIRC.NoticeColor.Red);
             }
-            else OnChatMsg(ToTwitchNotice("Unable to Connect: Enter a Valid Username!", true));
+            else AddSystemNotice("Unable to Connect: Enter a Valid Username!", TwitchIRC.NoticeColor.Red);
         }
         else
         {
@@ -98,7 +103,7 @@ public class TwitchChatTester : MonoBehaviour
             _connected = false;
             IRC.MessageRecievedEvent.RemoveListener(OnChatMsg);
             IRC.enabled = false;
-            OnChatMsg(ToTwitchNotice("Disconnected!", true));
+            OnChatMsg(TwitchIRC.ToTwitchNotice("Disconnected!", TwitchIRC.NoticeColor.Red));
         }
     }
 
@@ -114,12 +119,16 @@ public class TwitchChatTester : MonoBehaviour
         switch (mode)
         {
             case "NOTICE":
+                // Compatability with real Twitch System messages
                 if (nickname == "tmi.twitch.tv")
                 {
                     nickname = "Twitch";
                     if (chat.StartsWith("Error"))
                         channel = "System-Red";
+                    else if (chat == "Login unsuccessful")
+                        channel = "System-Red";
                 }
+                // Convert Notice to Name Color
                 switch (channel)
                 {
                     case "System-Green":
@@ -129,7 +138,7 @@ public class TwitchChatTester : MonoBehaviour
                         AddMsg(nickname, ColorToHex(new Color(1f, 0f, 0f)), chat);
                         break;
                     case "System-Blue":
-                        AddMsg(nickname, ColorToHex(new Color(0.2f, 0.4f, 1f)), chat);
+                        AddMsg(nickname, ColorToHex(new Color(0f, 0.4f, 1f)), chat);
                         break;
                     case "System-Yellow":
                         AddMsg(nickname, ColorToHex(new Color(1f, 1f, 0f)), chat);
@@ -159,14 +168,9 @@ public class TwitchChatTester : MonoBehaviour
         }
     }
 
-    public void AddSystemNotice(string msgIn, bool warning = false)
+    public void AddSystemNotice(string msgIn, TwitchIRC.NoticeColor colorEnum = TwitchIRC.NoticeColor.Blue)
     {
-        OnChatMsg(string.Format(warning ? ":System NOTICE *System-Yellow :{0}" : ":System NOTICE *System-Blue :{0}", msgIn));
-    }
-
-    public static string ToTwitchNotice(string msgIn, bool error = false)
-    {
-        return string.Format(error ? ":Twitch NOTICE *System-Red :{0}" : ":Twitch NOTICE *System-Green :{0}", msgIn);
+        OnChatMsg(TwitchIRC.ToNotice("System", msgIn, colorEnum));
     }
 
     private void AddMsg(string nickname, string color, string chat)

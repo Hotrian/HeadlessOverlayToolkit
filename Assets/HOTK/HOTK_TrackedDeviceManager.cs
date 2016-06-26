@@ -252,6 +252,6 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
     /// <param name="text"></param>
     void LogWarning(string text)
     {
-        TwitchChatTester.Instance.AddSystemNotice(text, true);
+        TwitchChatTester.Instance.AddSystemNotice(text, TwitchIRC.NoticeColor.Yellow);
     }
 }
