@@ -46,8 +46,6 @@ public class TwitchChatTester : MonoBehaviour
     }
     private TwitchIRC _irc;
 
-    private readonly Dictionary<string, string> _userColors = new Dictionary<string, string>();
-
     private readonly List<TwitchChat> _userChat = new List<TwitchChat>();
 
     private bool _connected;
@@ -132,38 +130,27 @@ public class TwitchChatTester : MonoBehaviour
                 switch (channel)
                 {
                     case "System-Green":
-                        AddMsg(nickname, ColorToHex(new Color(0f, 1f, 0f)), chat);
+                        AddMsg(nickname, TwitchIRC.ColorToHex(new Color(0f, 1f, 0f)), chat);
                         break;
                     case "System-Red":
-                        AddMsg(nickname, ColorToHex(new Color(1f, 0f, 0f)), chat);
+                        AddMsg(nickname, TwitchIRC.ColorToHex(new Color(1f, 0f, 0f)), chat);
                         break;
                     case "System-Blue":
-                        AddMsg(nickname, ColorToHex(new Color(0f, 0.4f, 1f)), chat);
+                        AddMsg(nickname, TwitchIRC.ColorToHex(new Color(0f, 0.4f, 1f)), chat);
                         break;
                     case "System-Yellow":
-                        AddMsg(nickname, ColorToHex(new Color(1f, 1f, 0f)), chat);
+                        AddMsg(nickname, TwitchIRC.ColorToHex(new Color(1f, 1f, 0f)), chat);
                         break;
                     case "System-Purple":
-                        AddMsg(nickname, ColorToHex(new Color(1f, 0f, 1f)), chat);
+                        AddMsg(nickname, TwitchIRC.ColorToHex(new Color(1f, 0f, 1f)), chat);
                         break;
                     default:
-                        AddMsg(nickname, ColorToHex(new Color(1f, 1f, 1f)), chat);
+                        AddMsg(nickname, TwitchIRC.ColorToHex(new Color(1f, 1f, 1f)), chat);
                         break;
                 }
                 break;
             case "PRIVMSG":
-                nickname = FirstLetterToUpper(nickname);
-                if (!_userColors.ContainsKey(nickname))
-                {
-                    var r = Mathf.Max(0.25f, Random.value);
-                    var g = Mathf.Max(0.25f, Random.value);
-                    var b = Mathf.Max(0.25f, Random.value);
-                    _userColors.Add(nickname, ColorToHex(new Color(r, g, b)));
-                }
-
-                string hex;
-                if (_userColors.TryGetValue(nickname, out hex))
-                    AddMsg(nickname, hex, chat);
+                AddMsg(FirstLetterToUpper(nickname), TwitchIRC.GetUserColor(nickname), chat);
                 break;
         }
     }
@@ -188,48 +175,27 @@ public class TwitchChatTester : MonoBehaviour
         var lines = new List<string>();
         TextMesh.text = "";
         var ren = TextMesh.GetComponent<Renderer>();
-        var rowLimit = 0.9f; //find the sweet spot
+        var rowLimit = 0.975f; //find the sweet spot
         foreach (var m in messages)
         {
-            TextMesh.text = string.Format("{0}: ", m.Name);
-            var builder = string.Format("<color=#{0}FF>{1}</color>: ", m.Color, m.Name);
+            TextMesh.text = string.Format("<color=#{0}FF>{1}</color>: ", m.Color, m.Name);
+            string builder = "";
             var parts = m.Message.Split(' ');
             foreach (var t in parts)
             {
+                builder = TextMesh.text;
                 TextMesh.text += t + " ";
                 if (ren.bounds.extents.x > rowLimit)
                 {
                     lines.Add(builder.TrimEnd() + System.Environment.NewLine);
-                    TextMesh.text = "";
-                    builder = "";
+                    TextMesh.text = t + " ";
                 }
-                builder += t + " ";
+                builder = TextMesh.text;
             }
-
-            if (builder != "")
-                lines.Add(builder.TrimEnd() + System.Environment.NewLine);
+            lines.Add(builder.TrimEnd() + System.Environment.NewLine);
         }
         
         TextMesh.text = lines.Aggregate("", (current, t) => current + t);
-    }
-
-    public static string ColorToHex(Color32 color)
-    {
-        return color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");
-    }
-
-    public static Color HexToColor(string hex)
-    {
-        hex = hex.Replace("0x", "");//in case the string is formatted 0xFFFFFF
-        hex = hex.Replace("#", "");//in case the string is formatted #FFFFFF
-        byte a = 255;//assume fully visible unless specified in hex
-        var r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-        var g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-        var b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-        //Only use alpha if the string has enough characters
-        if (hex.Length == 8)
-            a = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-        return new Color32(r, g, b, a);
     }
 
     public static string FirstLetterToUpper(string str)

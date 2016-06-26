@@ -6,6 +6,7 @@ using System.Threading;
 
 public class TwitchIRC : MonoBehaviour
 {
+    public const string DefaultChatNameColor = "#FFFFFFFF";
     public string Oauth;
     public string NickName;
     public string ChannelName;
@@ -21,7 +22,10 @@ public class TwitchIRC : MonoBehaviour
     private readonly Queue<string> _commandQueue = new Queue<string>();
     private readonly List<string> _recievedMsgs = new List<string>();
     private System.Threading.Thread _inProc, _outProc;
-    
+
+    private static readonly Dictionary<string, string> UserColors = new Dictionary<string, string>();
+    private static System.Random Random = new System.Random();
+
     private bool _connected;
     private bool _loggedin;
 
@@ -32,7 +36,7 @@ public class TwitchIRC : MonoBehaviour
         sock.Connect(Server, Port);
         if (!sock.Connected)
         {
-            Debug.Log("Failed to connect!");
+            ToNotice("System", "Failed to connect!", NoticeColor.Red);
             return;
         }
         var networkStream = sock.GetStream();
@@ -54,7 +58,7 @@ public class TwitchIRC : MonoBehaviour
         _inProc.Start();
 
         CancelInvoke("CheckConnection");
-        Invoke("CheckConnection", 5f);
+        Invoke("CheckConnection", 10f);
     }
 
     private void CheckConnection()
@@ -77,48 +81,109 @@ public class TwitchIRC : MonoBehaviour
     {
         while (!_stopThreads)
         {
-            if (!networkStream.DataAvailable)
+            try
             {
-                Thread.Sleep(20);
-                continue;
-            }
+                if (!networkStream.DataAvailable)
+                {
+                    Thread.Sleep(20);
+                    continue;
+                }
 
-            _buffer = input.ReadLine();
-            if (_buffer == null) continue;
-            var tokens = _buffer.Split(' ');
-            switch (tokens[1])
+                _buffer = input.ReadLine();
+                if (_buffer == null) continue;
+                //Debug.Log(_buffer);
+
+                string[] tokens;
+                string message;
+                if (_buffer.StartsWith("@"))
+                {
+                    var split = _buffer.IndexOf(' ');
+                    var userstate = _buffer.Substring(0, split);
+                    message = _buffer.Substring(split + 1);
+                    tokens = message.Split(' ');
+
+                    var username = tokens[0].Split('!')[0].Substring(1);
+                    var keys = userstate.Split(';');
+
+                    foreach (var k in keys)
+                    {
+                        if (k.StartsWith("color="))
+                        {
+                            if (GetUserColor(username) != DefaultChatNameColor) continue;
+                            var color = (k != "color=") ? k.Substring(7) : null;
+                            if (string.IsNullOrEmpty(color))
+                            {
+                                var r = Mathf.Max(0.25f, Random.Next(0, 100)/100f);
+                                var g = Mathf.Max(0.25f, Random.Next(0, 100)/100f);
+                                var b = Mathf.Max(0.25f, Random.Next(0, 100)/100f);
+                                color = ColorToHex(new Color(r, g, b));
+                            }
+                            lock (UserColors)
+                            {
+                                UserColors.Add(username, color);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    message = _buffer;
+                    tokens = _buffer.Split(' ');
+                }
+
+                switch (tokens[1])
+                {
+                    case "PRIVMSG":
+                    case "NOTICE":
+                        lock (_recievedMsgs)
+                        {
+                            _recievedMsgs.Add(message);
+                        }
+                        break;
+                    case "JOIN":
+                        lock (_recievedMsgs)
+                        {
+                            _recievedMsgs.Add(ToTwitchNotice(string.Format("Connected to {0}!", tokens[2])));
+                            _connected = true;
+                        }
+                        break;
+                    case "001":
+                        lock (_recievedMsgs)
+                        {
+                            _recievedMsgs.Add(ToTwitchNotice("Logged in! Connecting to chat.."));
+                            _loggedin = true;
+                        }
+                        SendCommand("CAP REQ :twitch.tv/tags");
+                        SendCommand("CAP REQ :twitch.tv/commands");
+                        SendCommand("JOIN #" + ChannelName);
+                        break;
+                    case "CAP":
+                        lock (_recievedMsgs)
+                        {
+                            _recievedMsgs.Add(ToTwitchNotice("Acknowledging Client Capabilities!"));
+                            _connected = true;
+                        }
+                        break;
+                    case "USERSTATE":
+                        break;
+                    default:
+                        if (_buffer.StartsWith("PING "))
+                        {
+                            SendCommand(_buffer.Replace("PING", "PONG"));
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
             {
-                case "PRIVMSG":
-                case "NOTICE":
-                    lock (_recievedMsgs)
-                    {
-                        _recievedMsgs.Add(_buffer);
-                    }
-                    break;
-                case "001":
-                    lock (_recievedMsgs)
-                    {
-                        _recievedMsgs.Add(ToTwitchNotice("Logged in! Connecting to chat.."));
-                        _loggedin = true;
-                    }
-                    SendCommand("JOIN #" + ChannelName);
-                    break;
-                case "JOIN":
-                    lock (_recievedMsgs)
-                    {
-                        _recievedMsgs.Add(ToTwitchNotice(string.Format("Connected to {0}!", tokens[2])));
-                        _connected = true;
-                    }
-                    break;
-                default:
-                    if (_buffer.StartsWith("PING "))
-                    {
-                        SendCommand(_buffer.Replace("PING", "PONG"));
-                    }
-                    break;
+                lock (_recievedMsgs)
+                {
+                    _recievedMsgs.Add(ToNotice("EXCEPTION", e.ToString(), NoticeColor.Red));
+                }
             }
         }
     }
+
     private void IRCOutputProcedure(System.IO.TextWriter output)
     {
         System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
@@ -201,6 +266,35 @@ public class TwitchIRC : MonoBehaviour
     {
         return string.Format(":{0} NOTICE {1} :{2}", nickname, NoticeColorToString(colorEnum), msgIn);
     }
+
+    public static string GetUserColor(string username)
+    {
+        lock (UserColors)
+        {
+            string hex;
+            return UserColors.TryGetValue(username, out hex) ? hex : DefaultChatNameColor;
+        }
+    }
+
+    public static string ColorToHex(Color32 color)
+    {
+        return color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");
+    }
+
+    public static Color HexToColor(string hex)
+    {
+        hex = hex.Replace("0x", "");//in case the string is formatted 0xFFFFFF
+        hex = hex.Replace("#", "");//in case the string is formatted #FFFFFF
+        byte a = 255;//assume fully visible unless specified in hex
+        var r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+        var g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+        var b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+        //Only use alpha if the string has enough characters
+        if (hex.Length == 8)
+            a = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+        return new Color32(r, g, b, a);
+    }
+
 
     public static string NoticeColorToString(NoticeColor colorEnum)
     {
