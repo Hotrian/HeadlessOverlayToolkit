@@ -148,6 +148,13 @@ public class DropdownSaveLoadController : MonoBehaviour
         ScaleStartField.text = settings.ScaleStart.ToString();
         ScaleEndField.text = settings.ScaleEnd.ToString();
         ScaleSpeedField.text = settings.ScaleSpeed.ToString();
+
+        AlphaStartField.onEndEdit.Invoke("");
+        AlphaEndField.onEndEdit.Invoke("");
+        AlphaSpeedField.onEndEdit.Invoke("");
+        ScaleStartField.onEndEdit.Invoke("");
+        ScaleEndField.onEndEdit.Invoke("");
+        ScaleSpeedField.onEndEdit.Invoke("");
     }
 
     public void OnSavePressed()
