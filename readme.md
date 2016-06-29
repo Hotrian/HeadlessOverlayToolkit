@@ -1,3 +1,8 @@
+# This repository has moved!
+### Please discontinue use of this repository!
+### The new home is [over here](https://github.com/Hotrian/OpenVRTwitchChat)!
+====
+
 **This is the twitchtest branch for the Headless Overlay Toolkit project.**
 
 This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that displays twitch chat!
