@@ -4,6 +4,9 @@ using Valve.VR;
 
 public class HOTK_TrackedDeviceManager : MonoBehaviour
 {
+    public static Action<ETrackedControllerRole, uint> OnControllerIndexChanged; // Called any time a specific controller changes index
+    public static Action OnControllerIndicesUpdated; // Called only when both controllers have been checked/assigned or are swapped
+
     public static HOTK_TrackedDeviceManager Instance
     {
         get { return _instance ?? (_instance = new GameObject("HOTK_TrackedDeviceManager", typeof(HOTK_TrackedDeviceManager)) {hideFlags = HideFlags.HideInHierarchy}.GetComponent<HOTK_TrackedDeviceManager>()); }
@@ -39,14 +42,14 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
 
     public void Awake()
     {
-        FindControllers();
         FindHMD();
+        FindControllers();
     }
 
     public void Update()
     {
-        FindControllers();
         FindHMD();
+        FindControllers();
         UpdatePoses();
     }
 
@@ -74,7 +77,7 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         var system = OpenVR.System;
         if (system == null)
         {
-            LogWarning("OpenVR System not found.");
+            LogError("OpenVR System not found.");
             return;
         }
 
@@ -93,9 +96,16 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         }
         if (_hmdIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
         {
-            Log("Found HMD ( Device: " + _hmdIndex + " )");
+            Log("Found HMD ( Device: {0} )", _hmdIndex);
         }
     }
+
+    public void ResetControllerFindAttemptCount()
+    {
+        _noControllersCount = 0;
+    }
+
+    private uint _noControllersCount;
 
     /// <summary>
     /// Attempt to find both controllers.
@@ -105,7 +115,11 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         var system = OpenVR.System;
         if (system == null)
         {
-            LogWarning("OpenVR System not found.");
+            LogError("OpenVR System not found.");
+            return;
+        }
+        if (_noControllersCount >= 10)
+        {
             return;
         }
 
@@ -116,13 +130,21 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
             return;
         }
 
-        Log("Searching for Controllers..");
+        if (_noControllersCount == 0) Log("Searching for Controllers..");
         _leftIndex = system.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
+        CallIndexChanged(ETrackedControllerRole.LeftHand, _leftIndex);
         _rightIndex = system.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
+        CallIndexChanged(ETrackedControllerRole.RightHand, _rightIndex);
+        CallControllersUpdated();
 
-        if (_leftIndex != OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex == OpenVR.k_unTrackedDeviceIndexInvalid)
+        if (_leftIndex != OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex != OpenVR.k_unTrackedDeviceIndexInvalid) // Both controllers are assigned!
         {
-            Log("Found Controller ( Device: " + _leftIndex + " ): Left");
+            Log("Found Controller ( Device: {0} ): Right", _rightIndex);
+            Log("Found Controller ( Device: {0} ): Left", _leftIndex);
+        }
+        else if (_leftIndex != OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex == OpenVR.k_unTrackedDeviceIndexInvalid) // Left controller is assigned but right is missing
+        {
+            Log("Found Controller ( Device: {0} ): Left", _leftIndex);
             for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
             {
                 if (i == _leftIndex || system.GetTrackedDeviceClass(i) != ETrackedDeviceClass.Controller)
@@ -130,13 +152,15 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
                     continue;
                 }
                 _rightIndex = i;
-                Log("Found Controller ( Device: " + _rightIndex + " ): Right");
+                CallIndexChanged(ETrackedControllerRole.RightHand, _rightIndex);
+                Log("Found Controller ( Device: {0} ): Right", _rightIndex);
                 break;
             }
+            CallControllersUpdated();
         }
-        else if (_leftIndex == OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
+        else if (_leftIndex == OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex != OpenVR.k_unTrackedDeviceIndexInvalid) // Right controller is assigned but left is missing
         {
-            Log("Found Controller ( Device: " + _rightIndex + " ): Right");
+            Log("Found Controller ( Device: {0} ): Right", _rightIndex);
             for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
             {
                 if (i == _rightIndex || system.GetTrackedDeviceClass(i) != ETrackedDeviceClass.Controller)
@@ -144,13 +168,15 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
                     continue;
                 }
                 _leftIndex = i;
-                Log("Found Controller ( Device: " + _leftIndex + " ): Left");
+                CallIndexChanged(ETrackedControllerRole.LeftHand, _leftIndex);
+                Log("Found Controller ( Device: {0} ): Left", _leftIndex);
                 break;
             }
+            CallControllersUpdated();
         }
-        else if (_leftIndex == OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex == OpenVR.k_unTrackedDeviceIndexInvalid)
+        else if (_leftIndex == OpenVR.k_unTrackedDeviceIndexInvalid && _rightIndex == OpenVR.k_unTrackedDeviceIndexInvalid) // Both controllers are unassigned
         {
-            LogWarning("SteamVR Reports No Assigned Controllers..! Searching..");
+            if (_noControllersCount == 0) LogWarning("SteamVR Reports No Assigned Controllers..! Searching..");
             var foundUnassigned = 0;
             var slots = new uint[2];
             // Sort through all the devices until we find two controllers
@@ -163,15 +189,17 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
                 switch (system.GetControllerRoleForTrackedDeviceIndex(i))
                 {
                     case ETrackedControllerRole.LeftHand:
-                        Log("Found Controller ( Device: " + i + " ): Left");
                         _leftIndex = i;
+                        Log("Found Controller ( Device: {0} ): Left", _leftIndex);
+                        CallIndexChanged(ETrackedControllerRole.LeftHand, _leftIndex);
                         break;
                     case ETrackedControllerRole.RightHand:
-                        Log("Found Controller ( Device: " + i + " ): Right");
                         _rightIndex = i;
+                        Log("Found Controller ( Device: {0} ): Right", _rightIndex);
+                        CallIndexChanged(ETrackedControllerRole.RightHand, _rightIndex);
                         break;
                     case ETrackedControllerRole.Invalid:
-                        Log("Found Controller ( Device: " + i + " ): Unassigned");
+                        Log("Found Controller ( Device: {0} ): Unassigned", i);
                         if (foundUnassigned <= 1)
                             slots[foundUnassigned++] = i;
                         break;
@@ -187,7 +215,9 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
                 case 2:
                     LogWarning("Found Two Unassigned Controllers! Randomly Assigning!");
                     _rightIndex = slots[0];
+                    CallIndexChanged(ETrackedControllerRole.RightHand, _rightIndex);
                     _leftIndex = slots[1];
+                    CallIndexChanged(ETrackedControllerRole.LeftHand, _leftIndex);
                     break;
                 case 1:
                     if (_leftIndex == OpenVR.k_unTrackedDeviceIndexInvalid &&
@@ -195,36 +225,78 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
                     {
                         LogWarning("Only Found One Unassigned Controller, and Right was already assigned! Assigning To Left!");
                         _leftIndex = slots[0];
+                        CallIndexChanged(ETrackedControllerRole.LeftHand, _leftIndex);
+                        _noControllersCount = 10;
                     }
                     else
                     {
                         LogWarning("Only Found One Unassigned Controller! Assigning To Right!");
                         _rightIndex = slots[0];
+                        CallIndexChanged(ETrackedControllerRole.RightHand, _rightIndex);
+                        _noControllersCount = 10;
                     }
                     break;
                 case 0:
-                    LogWarning("Couldn't Find Any Unassigned Controllers!");
+                    if (_noControllersCount == 0) LogWarning("Couldn't Find Any Unassigned Controllers!");
+                    _noControllersCount++;
+                    if (_noControllersCount >= 10)
+                    {
+                        LogError("Controllers not found!");
+                        LogError("Please connect the controllers and restart!");
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            CallControllersUpdated();
         }
+    }
+
+    private void CallIndexChanged(ETrackedControllerRole role, uint index)
+    {
+        if (OnControllerIndexChanged != null)
+            OnControllerIndexChanged(role, index);
+    }
+    private void CallControllersUpdated()
+    {
+        if (OnControllerIndicesUpdated != null)
+            OnControllerIndicesUpdated();
+    }
+
+    public void SwapControllers()
+    {
+        var t = _leftIndex;
+        _leftIndex = _rightIndex;
+        CallIndexChanged(ETrackedControllerRole.LeftHand, _leftIndex);
+        _rightIndex = t;
+        CallIndexChanged(ETrackedControllerRole.RightHand, _rightIndex);
+        CallControllersUpdated();
     }
 
     /// <summary>
     /// This is just used to quickly enable/disable Log messages.
     /// </summary>
     /// <param name="text"></param>
-    void Log(string text)
+    void Log(string text, params object[] vars)
     {
-        //Debug.Log(text);
+        Debug.Log(vars == null ? text : string.Format(text, vars));
     }
+
     /// <summary>
     /// This is just used to quickly enable/disable LogWarning messages.
     /// </summary>
     /// <param name="text"></param>
-    void LogWarning(string text)
+    void LogWarning(string text, params object[] vars)
     {
-        //Debug.LogWarning(text);
+        Debug.LogWarning(vars == null ? text : string.Format(text, vars));
+    }
+
+    /// <summary>
+    /// This is just used to quickly enable/disable LogError messages.
+    /// </summary>
+    /// <param name="text"></param>
+    void LogError(string text, params object[] vars)
+    {
+        Debug.LogError(vars == null ? text : string.Format(text, vars));
     }
 }

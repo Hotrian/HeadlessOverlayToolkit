@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using Valve.VR;
+using Random = System.Random;
 
 public class HOTK_Overlay : MonoBehaviour
 {
@@ -49,8 +50,10 @@ public class HOTK_Overlay : MonoBehaviour
     #endregion
 
     #region Interal Vars
+
+    public static Random rand = new Random();
     public static HOTK_Overlay HighQualityOverlay;  // Only one Overlay can be HQ at a time
-    public static string Key { get { return "unity:" + Application.companyName + "." + Application.productName; } }
+    public static string Key { get { return "unity:" + Application.companyName + "." + Application.productName + "." + rand.Next(); } }
     public static GameObject ZeroReference;         // Used to get a reference to the world 0, 0, 0 point
     public GameObject OverlayReference;             // Used to get a reference for the Overlay's transform
     
@@ -62,6 +65,9 @@ public class HOTK_Overlay : MonoBehaviour
     private Vector3 _objectPosition = Vector3.zero;     // These are used to cache values and check for changes
     private Quaternion _anchorRotation = Quaternion.identity;   // These are used to cache values and check for changes
     private Quaternion _objectRotation = Quaternion.identity;   // These are used to cache values and check for changes
+    private bool _wasHighQuality;
+    private bool _wasAntiAlias;
+    private bool _wasCurved;
 
     private ulong _handle = OpenVR.k_ulOverlayHandleInvalid;    // caches a reference to our Overlay handle
     private HOTK_TrackedDevice _hmdTracker;                     // caches a reference to the HOTK_TrackedDevice that is tracking the HMD
@@ -94,11 +100,31 @@ public class HOTK_Overlay : MonoBehaviour
         CheckOverlayAlphaAndScale(ref changed);
         // Check if our Overlay is being Gazed at, or has been recently and is still animating
         if (AnimateOnGaze != AnimationType.None) UpdateGaze(ref changed);
+        // Check if our Overlay's HighQuality, AntiAlias, or Curved setting changed
+        CheckHighQualityChanged(ref changed);
         // Update our Overlay if anything has changed
         if (changed)
             UpdateOverlay();
         else
             UpdateRenderTexture();
+    }
+
+    public void Start()
+    {
+        HOTK_TrackedDeviceManager.OnControllerIndexChanged += OnControllerIndexChanged;
+    }
+
+    // If the controller we are tracking changes index, update
+    private void OnControllerIndexChanged(ETrackedControllerRole role, uint index)
+    {
+        if (_anchorDevice == AttachmentDevice.LeftController && role == ETrackedControllerRole.LeftHand)
+        {
+            _anchorDevice = AttachmentDevice.World; // This will trick the system into reattaching the overlay
+        }
+        else if (_anchorDevice == AttachmentDevice.RightController && role == ETrackedControllerRole.RightHand)
+        {
+            _anchorDevice = AttachmentDevice.World; // This will trick the system into reattaching the overlay
+        }
     }
 
     /// <summary>
@@ -370,7 +396,16 @@ public class HOTK_Overlay : MonoBehaviour
         changed = true;
 
         if (MeshRenderer != null) // If our texture changes, change our MeshRenderer's texture also. The MeshRenderer is optional.
-            MeshRenderer.material.mainTexture = OverlayTexture; 
+            MeshRenderer.material.mainTexture = OverlayTexture;
+    }
+
+    private void CheckHighQualityChanged(ref bool changed)
+    {
+        if (_wasHighQuality == Highquality && _wasAntiAlias == Antialias && _wasCurved == Curved) return;
+        _wasHighQuality = Highquality;
+        _wasAntiAlias = Antialias;
+        _wasCurved = Curved;
+        changed = true;
     }
 
     /// <summary>
@@ -579,6 +614,7 @@ public class HOTK_Overlay : MonoBehaviour
                 eColorSpace = EColorSpace.Auto
             };
             overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
+            //overlay.SetOverlayGamma(_handle, 2.2f); // Doesn't exist yet :(
             overlay.SetOverlayTexture(_handle, ref tex);
             overlay.SetOverlayAlpha(_handle, AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale ? _alpha : Alpha);
             overlay.SetOverlayWidthInMeters(_handle, AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale ? _scale : Scale);
