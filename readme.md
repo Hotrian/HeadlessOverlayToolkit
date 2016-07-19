@@ -1,24 +1,30 @@
 **This is the master branch for the Headless Overlay Toolkit project.**
 
-**Be sure to check out the experimental beta branch.**
+This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that allows for a number of things not built into the default Overlay script. For instance, this Overlay script allows drawing multiple Overlays at once, as well as placing Overlays into the world.
 
-This is a stripped down version of the SteamVR Unity Plugin that includes just enough code to draw Overlays with Unity into OpenVR without throwing errors ;]
+**Demos:**
 
-Specifically, this code creates [Overlay](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::CreateOverlay)s which can appear right inside any VR application, not [DashboardOverlay](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::CreateDashboardOverlay)s which can only appear on the dashboard menu.
+Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
+- [Here is a Youtube Video](https://www.youtube.com/watch?v=q1PTaL1Sx9I) that shows some of the default Controller attachment points.
+- [Here is a Youtube Video](https://www.youtube.com/watch?v=nB19zl-_DlM) that gives an example of these Overlays in TiltBrush.
+- [Here is a GIF](https://gfycat.com/SoftJointFrigatebird) that very quickly demonstrates an AlphaAndScale animation on Gaze.
 
-The demo scene has two overlays. Only one overlay can be 'High Quality' at a time [as defined by the OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay).
-However, neither is in HQ mode by default. This can easily be changed by changing [any of these three settings](http://i.imgur.com/6SM7aab.png).
+**Features:**
+- Draw Overlays, regardless of the current VR application.
+- Easily attach Overlays to the Screen, a Controller, or drop one in the World.
+- Easily snap Controller attached Overlays to a set "Base Position".
+- Offset Overlays positionally and rotationally.
+- Draw Multiple Overlays Simultaneously (only one Overlay can be 'High Quality').
+- Custom Inspector with Undo support.
+- Basic Gaze Detection and Animation support (Fade In/Out or Scale Up/Down on Gaze).
 
-Here [is an example of the VR output](http://imgur.com/a/nU3fS) as produced by the HTC Vive, and here [is an example of the application itself](http://i.imgur.com/vKutqqA.png).
-Note that it is not required to draw to the Unity display, this was done for demo purposes only. The Unity display can be used to display completely different information than is shown in the Overlay if desired, just remove or disable the MeshRenderer components from the Overlay gameobjects, and they will no longer show in Unity.
+**Known Issues:**
+- SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers for me, so I wrote my own manager, HOTK_TrackedDeviceManager.cs. My Device Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis. If only one Controller is connected, and it isn't already assigned, it will be assigned to the right hand.
 
-This was tested using [the null driver](https://www.reddit.com/r/SteamVR/comments/4i40k7/cant_get_steamvr_to_work_with_null_driver/d2uxgh5) and the HTC Vive, with Unity 5.3.5f1.
-
-In the event an HMD is not detected, an "Overlay Reference Point" is spawned to anchor the overlays somewhere in relation to the camera, however these Overlays will be stuck to the screen.
-
-If you want this attached to the controllers, I suspect you'll want to look into [SetOverlayTransformTrackedDeviceRelative](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetOverlayTransformTrackedDeviceRelative) or SteamVR_TrackedObject.cs and check out [this section of SteamVR_Overlay.cs](https://github.com/Hotrian/ViveOverlay/blob/master/Assets/SteamVR/Scripts/SteamVR_Overlay.cs#L110-L136) and adjust accordingly.
-
-There is probably still a lot to be done for proper Overlays, but this should give everyone a good jump start.
+**Additional Notes:**
+- When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
+- The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
+- Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
 
 **If you want to run this headless:**
 

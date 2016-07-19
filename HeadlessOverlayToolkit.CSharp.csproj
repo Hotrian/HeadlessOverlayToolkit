@@ -5,16 +5,16 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CD56FE97-16B5-F599-EEA4-2EDDB94D5130}</ProjectGuid>
+    <ProjectGuid>{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
-    <UnityProjectType>GamePlugins:3</UnityProjectType>
+    <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.3.5f1</UnityVersion>
     <RootNamespace></RootNamespace>
@@ -63,7 +63,30 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Plugins\openvr_api.cs" />
+    <ProjectReference Include="HeadlessOverlayToolkit.CSharp.Plugins.csproj">
+      <Project>{471817E4-67A9-BA4F-2262-A19C91959061}</Project>
+      <Name>HeadlessOverlayToolkit.CSharp.Plugins</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\HOTK\Example Content\DesktopCameraScript.cs" />
+    <Compile Include="Assets\HOTK\HOTK_Overlay.cs" />
+    <Compile Include="Assets\HOTK\HOTK_TrackedDevice.cs" />
+    <Compile Include="Assets\HOTK\HOTK_TrackedDeviceManager.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Camera.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraFlip.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_CameraMask.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Controller.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_ControllerManager.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Ears.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_ExternalCamera.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Frustum.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_GameView.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Overlay.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Render.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_TrackedObject.cs" />
+    <Compile Include="Assets\SteamVR\Scripts\SteamVR_Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\SteamVR\Resources\SteamVR_Blit.shader" />
