@@ -65,6 +65,11 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         FindExtraControllers();
     }
 
+    public void Start()
+    {
+        StartCheckingForControllers();
+    }
+
     public void Update()
     {
         FindHMD();
@@ -130,6 +135,53 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         _noExtraControllersCount = 0;
     }
 
+    /// <summary>
+    /// Check for new controllers now
+    /// </summary>
+    public void CheckForControllersOnce()
+    {
+        Log("Checking once for new controllers!");
+        CheckForControllers();
+    }
+
+    /// <summary>
+    /// Check for new controllers once, without reporting
+    /// </summary>
+    private void CheckForControllers()
+    {
+        if (_noControllersCount >= 10)
+        {
+            _noControllersCount -= 1;
+        }
+        if (_noExtraControllersCount >= 10)
+        {
+            _noExtraControllersCount -= 1;
+        }
+    }
+
+    /// <summary>
+    /// Stop checking for new controllers automatically
+    /// </summary>
+    public void StopCheckingForControllers()
+    {
+        Log("No longer checking for new controllers!");
+        CancelInvoke("CheckForControllers");
+    }
+
+    /// <summary>
+    /// Start checking for new controllers automatically.
+    /// </summary>
+    /// <param name="interval">How long to wait between checking for new controllers?</param>
+    /// <param name="checkImmediately">Should we start checking for new controllers immediately? Otherwise we start in [interval] seconds.</param>
+    public void StartCheckingForControllers(float interval = 10f, bool checkImmediately = true)
+    {
+        Log("Check for new controllers every {0} seconds!", interval);
+        CancelInvoke("CheckForControllers");
+        InvokeRepeating("CheckForControllers", checkImmediately ? 0f : interval, interval);
+    }
+
+    private bool _couldntFindControllers;
+    private bool _couldntFindExtraControllers;
     private uint _noControllersCount;
     private uint _noExtraControllersCount;
 
@@ -187,7 +239,12 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         else
         {
             _noExtraControllersCount++;
-            if (_noExtraControllersCount == 10) Log("No Extra Controllers were found.");
+
+            if (!_couldntFindExtraControllers && _noExtraControllersCount >= 10)
+            {
+                _couldntFindExtraControllers = true;
+                Log("No Extra Controllers were found.");
+            }
         }
     }
 
@@ -323,8 +380,10 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
                 case 0:
                     if (_noControllersCount == 0) LogWarning("Couldn't Find Any Unassigned Controllers!");
                     _noControllersCount++;
-                    if (_noControllersCount >= 10)
+
+                    if (!_couldntFindControllers && _noControllersCount >= 10)
                     {
+                        _couldntFindControllers = true;
                         LogError("Controllers not found!");
                         LogError("Please connect the controllers and restart!");
                     }
