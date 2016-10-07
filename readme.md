@@ -31,6 +31,7 @@ Note that these demos were taken during development, and do not necessarily repr
   - Check once by calling `HOTK_TrackedDeviceManager.Instance.CheckForControllersOnce()`.
   - Or check automatically again with `HOTK_TrackedDeviceManager.Instance.StartCheckingForControllers()`.
   - You can also adjust the interval by calling `StartCheckingForControllers(intervalInSeconds)`.
+- **If you ARE drawing a scene, you should be deleting [this line](https://github.com/Hotrian/HeadlessOverlayToolkit/blob/4fe5f88009c5ccd4373737966a7211ac0ac90bea/Assets/HOTK/HOTK_TrackedDeviceManager.cs#L78)** so that device poses are not being updated twice per frame! That line is required when there are no VR 'eyes' being utilized in your Unity scene.
 
 **If you want to run this headless:**
 
