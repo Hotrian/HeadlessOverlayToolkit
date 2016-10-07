@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Valve.VR;
 using Random = System.Random;
+using EType = HOTK_TrackedDevice.EType;
 
 public class HOTK_Overlay : MonoBehaviour
 {
@@ -115,15 +116,32 @@ public class HOTK_Overlay : MonoBehaviour
     }
 
     // If the controller we are tracking changes index, update
-    private void OnControllerIndexChanged(ETrackedControllerRole role, uint index)
+    private void OnControllerIndexChanged(EType role, uint index)
     {
-        if (_anchorDevice == AttachmentDevice.LeftController && role == ETrackedControllerRole.LeftHand)
+        // If the Overlay is attached to a Controller, this will trick it into reanchoring when the Controller Index changes.
+        switch (_anchorDevice)
         {
-            _anchorDevice = AttachmentDevice.World; // This will trick the system into reattaching the overlay
-        }
-        else if (_anchorDevice == AttachmentDevice.RightController && role == ETrackedControllerRole.RightHand)
-        {
-            _anchorDevice = AttachmentDevice.World; // This will trick the system into reattaching the overlay
+            case AttachmentDevice.World:
+            case AttachmentDevice.Screen:
+                break;
+            case AttachmentDevice.LeftController:
+                if (role == EType.LeftController)
+                    _anchorDevice = AttachmentDevice.World;
+                break;
+            case AttachmentDevice.RightController:
+                if (role == EType.RightController)
+                    _anchorDevice = AttachmentDevice.World;
+                break;
+            case AttachmentDevice.ThirdController:
+                if (role == EType.ThirdController)
+                    _anchorDevice = AttachmentDevice.World;
+                break;
+            case AttachmentDevice.FourthController:
+                if (role == EType.FourthController)
+                    _anchorDevice = AttachmentDevice.World;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -132,10 +150,10 @@ public class HOTK_Overlay : MonoBehaviour
     /// </summary>
     public void OnEnable()
     {
-        #pragma warning disable 0168
+#pragma warning disable 0168
         // ReSharper disable once UnusedVariable
         var svr = SteamVR.instance; // Init the SteamVR drivers
-        #pragma warning restore 0168
+#pragma warning restore 0168
         var overlay = OpenVR.Overlay;
         if (overlay == null) return;
         // Cache the default value on start
@@ -171,6 +189,7 @@ public class HOTK_Overlay : MonoBehaviour
     {
         AttachTo(device, 1f, Vector3.zero, point);
     }
+
     /// <summary>
     /// Attach the Overlay to [device] at [scale], and base position [point].
     /// [point] isn't used for HMD or World, and can be ignored.
@@ -182,6 +201,7 @@ public class HOTK_Overlay : MonoBehaviour
     {
         AttachTo(device, scale, Vector3.zero, point);
     }
+
     /// <summary>
     /// Attach the Overlay to [device] at [scale] size with offset [offset], and base position [point].
     /// [point] isn't used for HMD or World, and can be ignored.
@@ -194,7 +214,7 @@ public class HOTK_Overlay : MonoBehaviour
     {
         // Update Overlay Anchor position
         GetOverlayPosition();
-        
+
         // Update cached values
         _anchorDevice = device;
         AnchorDevice = device;
@@ -223,6 +243,16 @@ public class HOTK_Overlay : MonoBehaviour
                 break;
             case AttachmentDevice.RightController:
                 _anchor = HOTK_TrackedDeviceManager.Instance.RightIndex;
+                AttachToController(point, offset);
+                break;
+            case AttachmentDevice.ThirdController:
+                _anchor = HOTK_TrackedDeviceManager.Instance.ThirdIndex;
+                if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid) gameObject.SetActive(false); // Third Controller not connected
+                AttachToController(point, offset);
+                break;
+            case AttachmentDevice.FourthController:
+                _anchor = HOTK_TrackedDeviceManager.Instance.FourthIndex;
+                if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid) gameObject.SetActive(false); // Fourth Controller not connected
                 AttachToController(point, offset);
                 break;
             default:
@@ -310,7 +340,7 @@ public class HOTK_Overlay : MonoBehaviour
             case AttachmentPoint.AboveFlipped:
             case AttachmentPoint.BelowFlipped:
                 pos = new Vector3(-dx, dz, dy);
-                rot = Quaternion.AngleAxis(90f, new Vector3(1f, 0f, 0f)) * Quaternion.AngleAxis(180f, new Vector3(0f, 1f, 0f));
+                rot = Quaternion.AngleAxis(90f, new Vector3(1f, 0f, 0f))*Quaternion.AngleAxis(180f, new Vector3(0f, 1f, 0f));
                 break;
             default:
                 throw new ArgumentOutOfRangeException("point", point, null);
@@ -379,8 +409,8 @@ public class HOTK_Overlay : MonoBehaviour
             changed = true;
         }
         if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid || OverlayReference == null) return; // This part below is only for Controllers
-        if (!force && !gameObjectChanged && OverlayReference.transform.localRotation == _anchorRotation * _objectRotation) return;
-        OverlayReference.transform.localRotation = _anchorRotation * _objectRotation;
+        if (!force && !gameObjectChanged && OverlayReference.transform.localRotation == _anchorRotation*_objectRotation) return;
+        OverlayReference.transform.localRotation = _anchorRotation*_objectRotation;
         changed = true;
     }
 
@@ -422,18 +452,13 @@ public class HOTK_Overlay : MonoBehaviour
 
         var input = new VROverlayIntersectionParams_t
         {
-            eOrigin = SteamVR_Render.instance.trackingSpace,
-            vSource =
+            eOrigin = SteamVR_Render.instance.trackingSpace, vSource =
             {
-                v0 = source.x,
-                v1 = source.y,
-                v2 = -source.z
+                v0 = source.x, v1 = source.y, v2 = -source.z
             },
             vDirection =
             {
-                v0 = direction.x,
-                v1 = direction.y,
-                v2 = -direction.z
+                v0 = direction.x, v1 = direction.y, v2 = -direction.z
             }
         };
 
@@ -462,8 +487,8 @@ public class HOTK_Overlay : MonoBehaviour
 
         if (_hmdTracker != null) return;
         Debug.LogWarning("Couldn't find an HMD tracker. Making one up :(");
-        var go = new GameObject("HMD Tracker", typeof(HOTK_TrackedDevice)) { hideFlags = HideFlags.HideInHierarchy }.GetComponent<HOTK_TrackedDevice>();
-        go.Type = HOTK_TrackedDevice.EType.HMD;
+        var go = new GameObject("HMD Tracker", typeof (HOTK_TrackedDevice)) {hideFlags = HideFlags.HideInHierarchy}.GetComponent<HOTK_TrackedDevice>();
+        go.Type = EType.HMD;
         _hmdTracker = go;
     }
 
@@ -473,7 +498,7 @@ public class HOTK_Overlay : MonoBehaviour
     /// <returns></returns>
     private HmdMatrix34_t GetOverlayPosition()
     {
-        if (OverlayReference == null) OverlayReference = new GameObject("Overlay Reference") { hideFlags = HideFlags.HideInHierarchy };
+        if (OverlayReference == null) OverlayReference = new GameObject("Overlay Reference") {hideFlags = HideFlags.HideInHierarchy};
         if (_anchor == OpenVR.k_unTrackedDeviceIndexInvalid)
         {
             var offset = new SteamVR_Utils.RigidTransform(OverlayReference.transform, transform);
@@ -485,7 +510,7 @@ public class HOTK_Overlay : MonoBehaviour
         }
         else
         {
-            if (ZeroReference == null) ZeroReference = new GameObject("Zero Reference") { hideFlags = HideFlags.HideInHierarchy };
+            if (ZeroReference == null) ZeroReference = new GameObject("Zero Reference") {hideFlags = HideFlags.HideInHierarchy};
             var offset = new SteamVR_Utils.RigidTransform(ZeroReference.transform, OverlayReference.transform);
             offset.pos.x /= ZeroReference.transform.localScale.x;
             offset.pos.y /= ZeroReference.transform.localScale.y;
@@ -512,7 +537,8 @@ public class HOTK_Overlay : MonoBehaviour
                     changed = true;
                     if (_alpha > Alpha2)
                         _alpha = Alpha2;
-                }else if (_alpha > Alpha2)
+                }
+                else if (_alpha > Alpha2)
                 {
                     _alpha -= AlphaSpeed;
                     changed = true;
@@ -528,7 +554,8 @@ public class HOTK_Overlay : MonoBehaviour
                     changed = true;
                     if (_scale > Scale2)
                         _scale = Scale2;
-                }else if (_scale > Scale2)
+                }
+                else if (_scale > Scale2)
                 {
                     _scale -= ScaleSpeed;
                     changed = true;
@@ -547,7 +574,8 @@ public class HOTK_Overlay : MonoBehaviour
                     changed = true;
                     if (_alpha < Alpha)
                         _alpha = Alpha;
-                }else if (_alpha < Alpha)
+                }
+                else if (_alpha < Alpha)
                 {
                     _alpha += AlphaSpeed;
                     changed = true;
@@ -563,7 +591,8 @@ public class HOTK_Overlay : MonoBehaviour
                     changed = true;
                     if (_scale < Scale)
                         _scale = Scale;
-                }else if (_scale < Scale)
+                }
+                else if (_scale < Scale)
                 {
                     _scale += ScaleSpeed;
                     changed = true;
@@ -586,7 +615,7 @@ public class HOTK_Overlay : MonoBehaviour
         {
             var result = new IntersectionResults();
             hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, _hmdTracker.gameObject.transform.forward, ref result);
-            //Debug.Log("Hit! " + gameObject.name);
+            Debug.Log("Hit! " + gameObject.name);
         }
         HandleAnimateOnGaze(hit, ref changed);
     }
@@ -609,9 +638,7 @@ public class HOTK_Overlay : MonoBehaviour
 
             var tex = new Texture_t
             {
-                handle = OverlayTexture.GetNativeTexturePtr(),
-                eType = SteamVR.instance.graphicsAPI,
-                eColorSpace = EColorSpace.Auto
+                handle = OverlayTexture.GetNativeTexturePtr(), eType = SteamVR.instance.graphicsAPI, eColorSpace = EColorSpace.Auto
             };
             overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
             //overlay.SetOverlayGamma(_handle, 2.2f); // Doesn't exist yet :(
@@ -622,15 +649,13 @@ public class HOTK_Overlay : MonoBehaviour
 
             var textureBounds = new VRTextureBounds_t
             {
-                uMin = (0 + UvOffset.x) * UvOffset.z, vMin = (1 + UvOffset.y) * UvOffset.w,
-                uMax = (1 + UvOffset.x) * UvOffset.z, vMax = (0 + UvOffset.y) * UvOffset.w
+                uMin = (0 + UvOffset.x)*UvOffset.z, vMin = (1 + UvOffset.y)*UvOffset.w, uMax = (1 + UvOffset.x)*UvOffset.z, vMax = (0 + UvOffset.y)*UvOffset.w
             };
             overlay.SetOverlayTextureBounds(_handle, ref textureBounds);
 
             var vecMouseScale = new HmdVector2_t
             {
-                v0 = MouseScale.x,
-                v1 = MouseScale.y
+                v0 = MouseScale.x, v1 = MouseScale.y
             };
             overlay.SetOverlayMouseScale(_handle, ref vecMouseScale);
 
@@ -707,9 +732,7 @@ public class HOTK_Overlay : MonoBehaviour
 
         var tex = new Texture_t
         {
-            handle = OverlayTexture.GetNativeTexturePtr(),
-            eType = SteamVR.instance.graphicsAPI,
-            eColorSpace = EColorSpace.Auto
+            handle = OverlayTexture.GetNativeTexturePtr(), eType = SteamVR.instance.graphicsAPI, eColorSpace = EColorSpace.Auto
         };
 
         overlay.SetOverlayTexture(_handle, ref tex);
@@ -724,6 +747,7 @@ public class HOTK_Overlay : MonoBehaviour
     }*/
 
     #region Structs and Enums
+
     public struct IntersectionResults
     {
         public Vector3 Point;
@@ -741,18 +765,31 @@ public class HOTK_Overlay : MonoBehaviour
         /// Attempts to attach the Overlay to the World
         /// </summary>
         World,
+
         /// <summary>
         /// Attempts to attach the Overlay to the Screen / HMD
         /// </summary>
         Screen,
+
         /// <summary>
         /// Attempts to attach the Overlay to the Left Controller
         /// </summary>
         LeftController,
+
         /// <summary>
         /// Attempts to attach the Overlay to the Right Controller
         /// </summary>
         RightController,
+
+        /// <summary>
+        /// Attempts to attach the Overlay to the Third Controller
+        /// </summary>
+        ThirdController,
+
+        /// <summary>
+        /// Attempts to attach the Overlay to the Fourth Controller
+        /// </summary>
+        FourthController,
     }
 
     /// <summary>
@@ -764,46 +801,57 @@ public class HOTK_Overlay : MonoBehaviour
         /// Directly in the center at (0, 0, 0), facing upwards through the Trackpad.
         /// </summary>
         Center,
+
         /// <summary>
         /// At the end of the controller, like a staff ornament, facing towards the center.
         /// </summary>
         FlatAbove,
+
         /// <summary>
         /// At the bottom of the controller, facing away from the center.
         /// </summary>
         FlatBelow,
+
         /// <summary>
         /// At the bottom of the controller, facing towards the center.
         /// </summary>
         FlatBelowFlipped,
+
         /// <summary>
         /// Just above the Trackpad, facing away from the center.
         /// </summary>
         Above,
+
         /// <summary>
         /// Just above thr Trackpad, facing the center.
         /// </summary>
         AboveFlipped,
+
         /// <summary>
         /// Just below the Trigger, facing the center.
         /// </summary>
         Below,
+
         /// <summary>
         /// Just below the Trigger, facing away from the center.
         /// </summary>
         BelowFlipped,
+
         /// <summary>
         /// When holding the controller out vertically, Like "Center", but "Up", above the controller.
         /// </summary>
         Up,
+
         /// <summary>
         /// When holding the controller out vertically, Like "Center", but "Down", below the controller.
         /// </summary>
         Down,
+
         /// <summary>
         /// When holding the controller out vertically, Like "Center", but "Left", to the side of the controller.
         /// </summary>
         Left,
+
         /// <summary>
         /// When holding the controller out vertically, Like "Center", but "Right", to the side of the controller.
         /// </summary>
@@ -816,18 +864,22 @@ public class HOTK_Overlay : MonoBehaviour
         /// Don't animate this Overlay.
         /// </summary>
         None,
+
         /// <summary>
         /// Animate this Overlay by changing its Alpha.
         /// </summary>
         Alpha,
+
         /// <summary>
         /// Animate this Overlay by scaling it.
         /// </summary>
         Scale,
+
         /// <summary>
         /// Animate this Overlay by changing its Alpha and scaling it.
         /// </summary>
         AlphaAndScale,
     }
+
     #endregion
 }

@@ -29,7 +29,9 @@ public class HOTK_TrackedDevice : MonoBehaviour
         None = -1,
         HMD,
         LeftController,
-        RightController
+        RightController,
+        ThirdController,
+        FourthController,
     }
 
     public EType Type;
@@ -41,12 +43,14 @@ public class HOTK_TrackedDevice : MonoBehaviour
 
     private void OnNewPoses(params object[] args)
     {
+        // If our Tracked Type changes, we are no longer valid
         if (_type != Type)
         {
             _type = Type;
             IsValid = false;
         }
 
+        // If we aren't valid, try and find our index
         if (!IsValid)
         {
             Index = EIndex.None;
@@ -54,6 +58,8 @@ public class HOTK_TrackedDevice : MonoBehaviour
             {
                 switch (Type)
                 {
+                    case EType.None:
+                        return;
                     case EType.HMD:
                         if (HOTK_TrackedDeviceManager.Instance.HMDIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
                             Index = (EIndex)HOTK_TrackedDeviceManager.Instance.HMDIndex;
@@ -66,34 +72,46 @@ public class HOTK_TrackedDevice : MonoBehaviour
                         if (HOTK_TrackedDeviceManager.Instance.RightIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
                             Index = (EIndex)HOTK_TrackedDeviceManager.Instance.RightIndex;
                         break;
+                    case EType.ThirdController:
+                        if (HOTK_TrackedDeviceManager.Instance.ThirdIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
+                            Index = (EIndex)HOTK_TrackedDeviceManager.Instance.ThirdIndex;
+                        break;
+                    case EType.FourthController:
+                        if (HOTK_TrackedDeviceManager.Instance.FourthIndex != OpenVR.k_unTrackedDeviceIndexInvalid)
+                            Index = (EIndex)HOTK_TrackedDeviceManager.Instance.FourthIndex;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
         }
 
+        // Check if our device is valid
+
         IsValid = false;
 
         if (Index == EIndex.None)
-            return;
+            return; // This TrackedDevice is not set to track anything
 
         var i = (int) Index;
 
         var poses = (TrackedDevicePose_t[]) args[0];
         if (poses.Length <= i)
-            return;
+            return; // SteamVR did not send poses this update
 
         if (!poses[i].bDeviceIsConnected)
-            return;
+            return; // SteamVR reports device has been disconnected or was never connected
 
         if (!poses[i].bPoseIsValid)
-            return;
+            return; // SteamVR reports device is not valid (not being tracked currently)
 
         IsValid = true;
 
+        // Get our poses and change our position/rotation to match the device
+
         var pose = new SteamVR_Utils.RigidTransform(poses[i].mDeviceToAbsoluteTracking);
         
-        if (Origin != null)
+        if (Origin != null) // Our device is 'anchored' to something else in the scene
         {
             pose = new SteamVR_Utils.RigidTransform(Origin)*pose;
             pose.pos.x *= Origin.localScale.x;
@@ -102,7 +120,7 @@ public class HOTK_TrackedDevice : MonoBehaviour
             transform.position = pose.pos;
             transform.rotation = pose.rot;
         }
-        else
+        else // Our device is not attached to anything, use it's raw tracked position
         {
             transform.localPosition = pose.pos;
             transform.localRotation = pose.rot;
@@ -111,20 +129,21 @@ public class HOTK_TrackedDevice : MonoBehaviour
 
     public void Start()
     {
-        HOTK_TrackedDeviceManager.OnControllerIndexChanged += OnControllerIndexChanged;
+        HOTK_TrackedDeviceManager.OnControllerIndexChanged += OnControllerIndexChanged; // Register our delegate for when a Tracked Device has changed index
+        gameObject.SetActive(false); // Disable on Start, TrackedDeviceManager will awake us.
     }
 
     // If the controller we are tracking changes index, update
-    private void OnControllerIndexChanged(ETrackedControllerRole role, uint index)
+    private void OnControllerIndexChanged(EType role, uint index)
     {
-        if (Type == EType.LeftController && role == ETrackedControllerRole.LeftHand)
+        if (role != Type)
+            return;
+        if (!gameObject.activeInHierarchy)
         {
-            Reset();
+            gameObject.SetActive(true);
+            return;
         }
-        else if(Type == EType.RightController && role == ETrackedControllerRole.RightHand)
-        {
-            Reset();
-        }
+        Reset();
     }
 
     public void OnEnable()
