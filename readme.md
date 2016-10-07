@@ -26,6 +26,11 @@ Note that these demos were taken during development, and do not necessarily repr
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
 - The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
 - Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
+- The device manager will check for newly connected controllers automatically every 10 seconds.
+  - You can stop this by calling `HOTK_TrackedDeviceManager.Instance.StopCheckingForControllers()`.
+  - Check once by calling `HOTK_TrackedDeviceManager.Instance.CheckForControllersOnce()`.
+  - Or check automatically again with `HOTK_TrackedDeviceManager.Instance.StartCheckingForControllers()`.
+  - You can also adjust the interval by calling `StartCheckingForControllers(intervalInSeconds)`.
 
 **If you want to run this headless:**
 
