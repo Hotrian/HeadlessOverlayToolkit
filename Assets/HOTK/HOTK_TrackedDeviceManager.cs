@@ -125,6 +125,11 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         _noControllersCount = 0;
     }
 
+    public void ResetExtraControllerFindAttemptCount()
+    {
+        _noExtraControllersCount = 0;
+    }
+
     private uint _noControllersCount;
     private uint _noExtraControllersCount;
 
@@ -143,40 +148,41 @@ public class HOTK_TrackedDeviceManager : MonoBehaviour
         if (_thirdIndex != OpenVR.k_unTrackedDeviceIndexInvalid && system.GetTrackedDeviceClass(_thirdIndex) == ETrackedDeviceClass.Controller &&
             _fourthIndex != OpenVR.k_unTrackedDeviceIndexInvalid && system.GetTrackedDeviceClass(_fourthIndex) == ETrackedDeviceClass.Controller)
         {
-            // Assume we are still connected to the controllers..
+            // Assume we are still connected to the extra controllers..
             return;
         }
         if (_noExtraControllersCount == 0) Log("Searching for Extra Controllers..");
 
-        var found = false;
+        var found = 0;
 
         // Attempt to assign Third and Fourth controllers
         for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
-            if (i == _leftIndex || i == _rightIndex) continue;
-            if (system.GetTrackedDeviceClass(i) != ETrackedDeviceClass.Controller) continue;
+            if (i == _leftIndex || i == _rightIndex || i == _thirdIndex || i == _fourthIndex) continue; // If this index is already assigned, skip it
+            if (system.GetTrackedDeviceClass(i) != ETrackedDeviceClass.Controller) continue; // If this device is not a controller, skip it
 
             if (_thirdIndex == OpenVR.k_unTrackedDeviceIndexInvalid)
             {
                 _thirdIndex = i;
-                found = true;
+                found++;
                 Log("Found Controller ( Device: {0} ): Third", _thirdIndex);
-                CallIndexChanged(EType.ThirdController, _rightIndex);
+                CallIndexChanged(EType.ThirdController, _thirdIndex);
                 continue;
             }
             if(_fourthIndex == OpenVR.k_unTrackedDeviceIndexInvalid)
             {
                 _fourthIndex = i;
-                found = true;
+                found++;
                 Log("Found Controller ( Device: {0} ): Fourth", _fourthIndex);
-                CallIndexChanged(EType.FourthController, _rightIndex);
+                CallIndexChanged(EType.FourthController, _fourthIndex);
                 continue;
             }
-            break;
+            if (found >= 2) // We are only expecting to find two extra controllers (right now), if we've found them, break out of this loop
+                break;
         }
-        if (found)
+        if (found > 0)
         {
-            Log("Found Extra Controllers!");
+            Log(found > 1 ? "Found Extra Controllers!" : "Found Extra Controller!");
         }
         else
         {
