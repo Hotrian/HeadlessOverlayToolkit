@@ -615,7 +615,7 @@ public class HOTK_Overlay : MonoBehaviour
         {
             var result = new IntersectionResults();
             hit = ComputeIntersection(_hmdTracker.gameObject.transform.position, _hmdTracker.gameObject.transform.forward, ref result);
-            Debug.Log("Hit! " + gameObject.name);
+            //Debug.Log("Hit! " + gameObject.name);
         }
         HandleAnimateOnGaze(hit, ref changed);
     }

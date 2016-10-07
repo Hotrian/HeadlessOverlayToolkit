@@ -129,6 +129,7 @@ public class HOTK_TrackedDevice : MonoBehaviour
 
     public void Start()
     {
+        if (Type == EType.HMD) return;
         HOTK_TrackedDeviceManager.OnControllerIndexChanged += OnControllerIndexChanged; // Register our delegate for when a Tracked Device has changed index
         gameObject.SetActive(false); // Disable on Start, TrackedDeviceManager will awake us.
     }
