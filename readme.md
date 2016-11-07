@@ -26,7 +26,7 @@ Note that these demos were taken during development, and do not necessarily repr
 - The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
 - Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
 
-**If you want to run this headless:**
+**If you want to run this headless (Windows OS Only):**
 
 It seems like `-batchmode` no longer does what it is supposed to do, and that you cannot run HOTK using `-batchmode`.
 
