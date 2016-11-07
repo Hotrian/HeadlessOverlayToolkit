@@ -25,3 +25,19 @@ Note that these demos were taken during development, and do not necessarily repr
 - When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
 - The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
 - Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
+
+**If you want to run this headless:**
+
+It seems like `-batchmode` no longer does what it is supposed to do, and that you cannot run HOTK using `-batchmode`.
+
+Instead, I have written a script that causes the Standalone Player Window to move off screen, and hide itself from the Taskbar. This is very similar to running headless, except the Splash Screen will still display if you are using Unity Personal Edition and cannot disable the Splash.
+
+To run this in sort-of-headless mode:
+
+- Attach [this script](https://gist.github.com/Hotrian/1b0512e9feed42085a11446d17c26a12) to a single GameObject.
+- (optional) Disable/Delete the "Main Camera".
+- (If Main Camera disabled) The Game View in the Unity Editor should now say `Scene is missing a fullscreen camera`.
+
+Now when you launch your application, you should see the Splash Screen (if on Unity Personal or not disabled), then the application should appear to close, as the Window should disappear and it will no longer appear on the Taskbar or Alt+Tab. However, if you check Task Manager you should see the application is in fact running in the background, and if you check SteamVR you should see your Overlay(s) as before.
+
+By Disabling/Deleting the Main Camera, you can further reduce resource usage. When there is no Main Camera, Unity will no longer render anything to the Desktop Window, which is fine if you are trying to run Headless. Your Overlays will still be sent to SteamVR and rendered as before.
