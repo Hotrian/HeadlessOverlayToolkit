@@ -35,15 +35,15 @@ Note that these demos were taken during development, and do not necessarily repr
 
 **If you want to run this headless (Windows OS Only):**
 
-It seems like -batchmode no longer does what it is supposed to do, and that you cannot run HOTK using -batchmode.
+It seems like `-batchmode` no longer does what it is supposed to do, and that you cannot run HOTK using `-batchmode`.
 
 Instead, I have written a script that causes the Standalone Player Window to move off screen, and hide itself from the Taskbar. This is very similar to running headless, except the Splash Screen will still display if you are using Unity Personal Edition and cannot disable the Splash.
 
 To run this in sort-of-headless mode:
 
-    Attach this script to a single GameObject.
-    (optional) Disable/Delete the "Main Camera".
-    (If Main Camera disabled) The Game View in the Unity Editor should now say Scene is missing a fullscreen camera.
+- Attach [this script](https://gist.github.com/Hotrian/1b0512e9feed42085a11446d17c26a12) to a single GameObject.
+- (optional) Disable/Delete the "Main Camera".
+- (If Main Camera disabled) The Game View in the Unity Editor should now say `Scene is missing a fullscreen camera`.
 
 Now when you launch your application, you should see the Splash Screen (if on Unity Personal or not disabled), then the application should appear to close, as the Window should disappear and it will no longer appear on the Taskbar or Alt+Tab. However, if you check Task Manager you should see the application is in fact running in the background, and if you check SteamVR you should see your Overlay(s) as before.
 
