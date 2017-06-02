@@ -610,7 +610,7 @@ public class HOTK_Overlay : MonoBehaviour
             var tex = new Texture_t
             {
                 handle = OverlayTexture.GetNativeTexturePtr(),
-                eType = SteamVR.instance.graphicsAPI,
+                eType = SteamVR.instance.textureType,
                 eColorSpace = EColorSpace.Auto
             };
             overlay.SetOverlayColor(_handle, 1f, 1f, 1f);
@@ -708,7 +708,7 @@ public class HOTK_Overlay : MonoBehaviour
         var tex = new Texture_t
         {
             handle = OverlayTexture.GetNativeTexturePtr(),
-            eType = SteamVR.instance.graphicsAPI,
+            eType = SteamVR.instance.textureType,
             eColorSpace = EColorSpace.Auto
         };
 
