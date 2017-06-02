@@ -546,56 +546,7 @@ public class SteamVR_Settings : EditorWindow
 			GUILayout.EndHorizontal();
 		}
 #endif
-#if (UNITY_5_3 || UNITY_5_2 || UNITY_5_1 || UNITY_5_0)
-		if (!EditorPrefs.HasKey(ignore + stereoscopicRendering) &&
-			PlayerSettings.stereoscopic3D != recommended_StereoscopicRendering)
-		{
-			++numItems;
 
-			GUILayout.Label(stereoscopicRendering + string.Format(currentValue, PlayerSettings.stereoscopic3D));
-
-			GUILayout.BeginHorizontal();
-
-			if (GUILayout.Button(string.Format(useRecommended, recommended_StereoscopicRendering)))
-			{
-				PlayerSettings.stereoscopic3D = recommended_StereoscopicRendering;
-			}
-
-			GUILayout.FlexibleSpace();
-
-			if (GUILayout.Button("Ignore"))
-			{
-				EditorPrefs.SetBool(ignore + stereoscopicRendering, true);
-			}
-
-			GUILayout.EndHorizontal();
-		}
-#endif
-#if (UNITY_5_3 || UNITY_5_2 || UNITY_5_1)
-		if (!EditorPrefs.HasKey(ignore + virtualRealitySupported) &&
-			PlayerSettings.virtualRealitySupported != recommended_VirtualRealitySupported)
-		{
-			++numItems;
-
-			GUILayout.Label(virtualRealitySupported + string.Format(currentValue, PlayerSettings.virtualRealitySupported));
-
-			GUILayout.BeginHorizontal();
-
-			if (GUILayout.Button(string.Format(useRecommended, recommended_VirtualRealitySupported)))
-			{
-				PlayerSettings.virtualRealitySupported = recommended_VirtualRealitySupported;
-			}
-
-			GUILayout.FlexibleSpace();
-
-			if (GUILayout.Button("Ignore"))
-			{
-				EditorPrefs.SetBool(ignore + virtualRealitySupported, true);
-			}
-
-			GUILayout.EndHorizontal();
-		}
-#endif
 		GUILayout.BeginHorizontal();
 
 		GUILayout.FlexibleSpace();
