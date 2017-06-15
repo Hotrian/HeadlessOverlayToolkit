@@ -158,8 +158,6 @@ public class SteamVR_Settings : EditorWindow
 
 		var dlls = new string[]
 		{
-			"Plugins/x86/openvr_api.dll",
-			"Plugins/x86_64/openvr_api.dll"
 		};
 
 		foreach (var path in dlls)

@@ -19,7 +19,7 @@ public class SteamVR : System.IDisposable
 	{
 		get
 		{
-			if (!UnityEngine.VR.VRSettings.enabled)
+			if (SteamVR.usingNativeSupport && !UnityEngine.VR.VRSettings.enabled)
 				enabled = false;
 			return _enabled;
 		}
@@ -68,8 +68,13 @@ public class SteamVR : System.IDisposable
 			var error = EVRInitError.None;
 			if (!SteamVR.usingNativeSupport)
 			{
-				Debug.Log("OpenVR initialization failed.  Ensure 'Virtual Reality Supported' is checked in Player Settings, and OpenVR is added to the list of Virtual Reality SDKs.");
-				return null;
+                OpenVR.Init(ref error, EVRApplicationType.VRApplication_Overlay);
+                if (error != EVRInitError.None)
+                {
+                    ReportError(error);
+                    OpenVR.Shutdown();
+                    return null;
+                }
 			}
 
 			// Verify common interfaces are valid.
@@ -78,6 +83,8 @@ public class SteamVR : System.IDisposable
 			if (error != EVRInitError.None)
 			{
 				ReportError(error);
+                if (!SteamVR.usingNativeSupport)
+                    OpenVR.Shutdown();
 				return null;
 			}
 
@@ -85,6 +92,8 @@ public class SteamVR : System.IDisposable
 			if (error != EVRInitError.None)
 			{
 				ReportError(error);
+                if (!SteamVR.usingNativeSupport)
+                    OpenVR.Shutdown();
 				return null;
 			}
 		}
@@ -250,7 +259,7 @@ public class SteamVR : System.IDisposable
 	private SteamVR()
 	{
 		hmd = OpenVR.System;
-		Debug.Log("Connected to " + hmd_TrackingSystemName + ":" + hmd_SerialNumber);
+		Debug.Log(SteamVR.usingNativeSupport ? "Connected to " + hmd_TrackingSystemName + ":" + hmd_SerialNumber : "SteamVR Starting Up!");
 
 		compositor = OpenVR.Compositor;
 		overlay = OpenVR.Overlay;
