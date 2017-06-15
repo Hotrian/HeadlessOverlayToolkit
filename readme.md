@@ -1,45 +1,28 @@
-**This is the beta branch for the Headless Overlay Toolkit project.**
+**This is the redux branch for the Headless Overlay Toolkit project.**
 
-This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that allows for a number of things not built into the default Overlay script. For instance, this Overlay script allows drawing multiple Overlays at once, as well as placing Overlays into the world.
+## About this branch
 
-**Demos:**
+HOTK has been out of development for a bit and it's time to get it going again!
 
-Note that these demos were taken during development, and do not necessarily represent the current state of the branch.
-- [Here is a Youtube Video](https://www.youtube.com/watch?v=q1PTaL1Sx9I) that shows some of the default Controller attachment points.
-- [Here is a Youtube Video](https://www.youtube.com/watch?v=nB19zl-_DlM) that gives an example of these Overlays in TiltBrush.
-- [Here is a GIF](https://gfycat.com/SoftJointFrigatebird) that very quickly demonstrates an AlphaAndScale animation on Gaze.
+HOTK has a number of issues that occured due to me being new to SteamVR's APIs, and as such I am starting fresh with a clean copy of the SteamVR APIs and Unity 5.6.0f3. The new version of HOTK will be able to run as an Overlay Engine in new and existing applications which render a scene, as well as applications which do not render a scene.
 
-**Features:**
+Previously I did not push past Unity 5.3 due to NativeVR support causing issues with HOTK, however, I have decided to push forwards and get HOTK working properly :).
+
+## Where are things at?
+
+**As of the last time this readme was updated, this branch is NOT READY FOR USAGE!**
+
+It is open for auditing and suggestions, however it is not ready to be used in ANY sort of application at this time.
+
+## Planned Features
+
 - Draw Overlays, regardless of the current VR application.
 - Easily attach Overlays to the Screen, a Controller, or drop one in the World.
 - Easily snap Controller attached Overlays to a set "Base Position".
 - Offset Overlays positionally and rotationally.
 - Draw Multiple Overlays Simultaneously (only one Overlay can be 'High Quality').
-- Custom Inspector with Undo support.
-- Basic Gaze Detection and Animation support (Fade In/Out or Scale Up/Down on Gaze).
-- Supports Left and Right Controller, as well as a Third and Fourth Controller for devs with such hardware.
-
-**Known Issues:**
-- SteamVR_ControllerManager.cs doesn't correctly auto-identify controllers when there is no scene being rendered, so HOTK uses a custom device manager, HOTK_TrackedDeviceManager.cs. This Device Manager is super pre-alpha but should correctly identify both Controllers as long as at least one of them is assigned to either the left or right hand, and they are both connected. If neither Controller is assigned to a hand, they are assigned on a first come first serve basis (whichever was connected first will be assigned to the Right hand). You can swap the assignments by calling `HOTK_TrackedDeviceManager.Instance.SwapControllers()`, so you can let your users swap controllers at will. If only one Controller is connected, and it isn't already assigned, it will be assigned to the Right hand.
-
-**Additional Notes:**
-- When attaching Overlays to controllers, the offset is reoriented to match the Base Position's orientation. X+ should always move the Overlay to the Right, Y+ should always move Up, and Z+ should always move Forward, relative to the Overlay.
-- The Custom Inspector has custom collapse elements. You can change the default "collapse status" by messing with the defaults for ShowSettingsAppearance, ShowSettingsInput, and ShowSettingsAttachment at the top of HOTK_Overlay.cs.
-- Only one Overlay can be 'High Quality' at a time. An Overlay must be 'High Quality' to display Curved or with Anti-Aliasing as per the [OpenVR API](https://github.com/ValveSoftware/openvr/wiki/IVROverlay::SetHighQualityOverlay). 'High Quality' Overlays skip the Compositor and are drawn directly to the display. If you enable multiple HQ Overlays, any additional ones will have HQ toggled off and you'll receive a warning.
-- The device manager will check for newly connected controllers automatically every 10 seconds.
-  - You can stop this by calling `HOTK_TrackedDeviceManager.Instance.StopCheckingForControllers()`.
-  - Check once by calling `HOTK_TrackedDeviceManager.Instance.CheckForControllersOnce()`.
-  - Or check automatically again with `HOTK_TrackedDeviceManager.Instance.StartCheckingForControllers()`.
-  - You can also adjust the interval by calling `StartCheckingForControllers(intervalInSeconds)`.
-
-**If you want to run this headless:**
-
-Check out the [documentation here](http://docs.unity3d.com/Manual/CommandLineArguments.html) on how to run Unity headless.  There are a few different ways to do this.
-
-The basic steps to create a shortcut on Windows that launches headless are:
-- Build your Application
-- Create a Shortcut to your Application
-- Right Click the Shortcut > Properties
-- Put " -batchmode" at the end of the text in the 'Target' box
-- Launch your Shortcut, and your Application should launch hidden
-- You can crash your Application through the Task Manager, but be sure to add a graceful way to quit in the future :)
+- Support for events such as `OnDeviceAim` and `OnDeviceTouch`.
+- Integration with the SteamVR Laser Pointer (I couldn't get this working before, but I intend to find out why and get it working properly now).
+- "Grab" support for World _and Controller Attached_ Overlays.
+- Support for ALL Devices (as opposed to 4+HMD as the last version of HOTK supported).
+- And more!
