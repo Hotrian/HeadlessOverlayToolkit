@@ -1,5 +1,7 @@
 **This is the master branch for the Headless Overlay Toolkit project.**
 
+**This branch is currently out of development! Are you looking for the [redux](https://github.com/Hotrian/HeadlessOverlayToolkit/tree/redux) branch?**
+
 This is a stripped down version of the SteamVR Unity Plugin with a custom Overlay script that allows for a number of things not built into the default Overlay script. For instance, this Overlay script allows drawing multiple Overlays at once, as well as placing Overlays into the world.
 
 To use this, [grab Unity 5.3.6f1](https://unity3d.com/get-unity/download/archive) and roll your own by cloning the repo or [downloading the source as a zip](https://github.com/Hotrian/HeadlessOverlayToolkit/archive/master.zip). Other versions of Unity may work, but this Repo has only been tested with v5.3.5 and v5.3.6. Newer versions of Unity (5.4+) will likely have issues.
