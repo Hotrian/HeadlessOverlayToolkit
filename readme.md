@@ -26,3 +26,11 @@ It is open for auditing and suggestions, however it is not ready to be used in A
 - "Grab" support for World _and Controller Attached_ Overlays.
 - Support for ALL Devices (as opposed to 4+HMD as the last version of HOTK supported).
 - And more!
+
+## How is this different from the last version of HOTK?
+
+The old version of HOTK had a bunch of subtle issues, like how it treated SteamVR's TrackingSpaces and how it handled translating Transforms into VR space.
+
+I'm staring HOTK over again so it can be built on a properly foundation and understanding on SteamVR, instead of constantly having to work around all the patched code and improper implementations.
+
+In all honesty, one issue is that the SteamVR Unity Examples are not written properly in many cases :(. For example, the SteamVR Overlay Example code is specifically setup to only allow a single Overlay in your project, despite the SteamVR APIs allowing a very large number (64?) of Overlays simultaneously.
