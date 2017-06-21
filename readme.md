@@ -34,3 +34,11 @@ The old version of HOTK had a bunch of subtle issues, like how it treated SteamV
 I'm staring HOTK over again so it can be built on a properly foundation and understanding on SteamVR, instead of constantly having to work around all the patched code and improper implementations.
 
 In all honesty, one issue is that the SteamVR Unity Examples are not written properly in many cases :(. For example, the SteamVR Overlay Example code is specifically setup to only allow a single Overlay in your project, despite the SteamVR APIs allowing a very large number (64?) of Overlays simultaneously.
+
+## Building
+
+#### Prerequisites 
+- Unity v5.6.0f3 (Other versions may work as well, but likely need changes)
+- SteamVR Unity Plugin v1.2.1
+
+
