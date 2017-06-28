@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessOverlayToolkit.CSharp.Plugins", "HeadlessOverlayToolkit.CSharp.Plugins.csproj", "{471817E4-67A9-BA4F-2262-A19C91959061}"
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessOverlayToolkit.Plugins", "HeadlessOverlayToolkit.Plugins.csproj", "{80B11C52-6A9D-A19E-017A-11779F10F324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessOverlayToolkit.CSharp", "HeadlessOverlayToolkit.CSharp.csproj", "{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessOverlayToolkit", "HeadlessOverlayToolkit.csproj", "{D8AD80B1-8258-56A8-A566-DD1E0971896D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessOverlayToolkit.CSharp.Editor", "HeadlessOverlayToolkit.CSharp.Editor.csproj", "{0A44FD87-305E-6AA5-8803-843E7DC44199}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadlessOverlayToolkit.Editor", "HeadlessOverlayToolkit.Editor.csproj", "{D58FEC66-C1BD-6992-8B3A-9885EEA82DA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,18 +13,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{471817E4-67A9-BA4F-2262-A19C91959061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{471817E4-67A9-BA4F-2262-A19C91959061}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{471817E4-67A9-BA4F-2262-A19C91959061}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{471817E4-67A9-BA4F-2262-A19C91959061}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F24E7B6-8CFC-E0AE-713B-BA6442E31BD9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A44FD87-305E-6AA5-8803-843E7DC44199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A44FD87-305E-6AA5-8803-843E7DC44199}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A44FD87-305E-6AA5-8803-843E7DC44199}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A44FD87-305E-6AA5-8803-843E7DC44199}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80B11C52-6A9D-A19E-017A-11779F10F324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80B11C52-6A9D-A19E-017A-11779F10F324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80B11C52-6A9D-A19E-017A-11779F10F324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80B11C52-6A9D-A19E-017A-11779F10F324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8AD80B1-8258-56A8-A566-DD1E0971896D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8AD80B1-8258-56A8-A566-DD1E0971896D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8AD80B1-8258-56A8-A566-DD1E0971896D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8AD80B1-8258-56A8-A566-DD1E0971896D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D58FEC66-C1BD-6992-8B3A-9885EEA82DA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D58FEC66-C1BD-6992-8B3A-9885EEA82DA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D58FEC66-C1BD-6992-8B3A-9885EEA82DA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D58FEC66-C1BD-6992-8B3A-9885EEA82DA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -39,7 +39,7 @@ public class HOTK_TrackedDevice : MonoBehaviour
 
     private EType _type;
 
-    private void OnNewPoses(params object[] args)
+    private void OnNewPoses(params TrackedDevicePose_t[] args)
     {
         if (_type != Type)
         {
@@ -79,7 +79,7 @@ public class HOTK_TrackedDevice : MonoBehaviour
 
         var i = (int) Index;
 
-        var poses = (TrackedDevicePose_t[]) args[0];
+        var poses = args;
         if (poses.Length <= i)
             return;
 
@@ -130,12 +130,12 @@ public class HOTK_TrackedDevice : MonoBehaviour
     public void OnEnable()
     {
         Reset();
-        SteamVR_Utils.Event.Listen("new_poses", OnNewPoses);
+        SteamVR_Events.NewPoses.Listen(OnNewPoses);
     }
 
     public void OnDisable()
     {
-        SteamVR_Utils.Event.Remove("new_poses", OnNewPoses);
+        SteamVR_Events.NewPoses.Remove(OnNewPoses);
         Reset();
     }
 

@@ -1,4 +1,4 @@
-﻿//========= Copyright 2015, Valve Corporation, All rights reserved. ===========
+﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
 //
 // Purpose: Notify developers when a new version of the plugin is available.
 //
@@ -12,26 +12,29 @@ using System.Text.RegularExpressions;
 [InitializeOnLoad]
 public class SteamVR_Update : EditorWindow
 {
-	const string currentVersion = "1.1.0";
+	const string currentVersion = "1.2.1";
 	const string versionUrl = "http://media.steampowered.com/apps/steamvr/unitypluginversion.txt";
 	const string notesUrl = "http://media.steampowered.com/apps/steamvr/unityplugin-v{0}.txt";
 	const string pluginUrl = "http://u3d.as/content/valve-corporation/steam-vr-plugin";
 	const string doNotShowKey = "SteamVR.DoNotShow.v{0}";
 
+	static bool gotVersion = false;
 	static WWW wwwVersion, wwwNotes;
 	static string version, notes;
 	static SteamVR_Update window;
 
 	static SteamVR_Update()
 	{
-		wwwVersion = new WWW(versionUrl);
 		EditorApplication.update += Update;
 	}
 
 	static void Update()
 	{
-		if (wwwVersion != null)
+		if (!gotVersion)
 		{
+			if (wwwVersion == null)
+				wwwVersion = new WWW(versionUrl);
+
 			if (!wwwVersion.isDone)
 				return;
 
@@ -39,6 +42,7 @@ public class SteamVR_Update : EditorWindow
 				version = wwwVersion.text;
 
 			wwwVersion = null;
+			gotVersion = true;
 
 			if (ShouldDisplay())
 			{
@@ -125,11 +129,7 @@ public class SteamVR_Update : EditorWindow
 		EditorGUILayout.HelpBox("A new version of the SteamVR plugin is available!", MessageType.Warning);
 
 		var resourcePath = GetResourcePath();
-#if UNITY_5_0
-		var logo = Resources.LoadAssetAtPath<Texture2D>(resourcePath + "logo.png");
-#else
 		var logo = AssetDatabase.LoadAssetAtPath<Texture2D>(resourcePath + "logo.png");
-#endif
 		var rect = GUILayoutUtility.GetRect(position.width, 150, GUI.skin.box);
 		if (logo)
 			GUI.DrawTexture(rect, logo, ScaleMode.ScaleToFit);

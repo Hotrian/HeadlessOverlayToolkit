@@ -1,4 +1,4 @@
-﻿//========= Copyright 2014, Valve Corporation, All rights reserved. ===========
+﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
 //
 // Purpose: Displays 2d content on a large virtual screen.
 //
@@ -30,7 +30,7 @@ public class SteamVR_Overlay : MonoBehaviour
 
 	private ulong handle = OpenVR.k_ulOverlayHandleInvalid;
 
-    void OnEnable()
+	void OnEnable()
 	{
 		var overlay = OpenVR.Overlay;
 		if (overlay != null)
@@ -80,7 +80,7 @@ public class SteamVR_Overlay : MonoBehaviour
 
 			var tex = new Texture_t();
 			tex.handle = texture.GetNativeTexturePtr();
-			tex.eType = SteamVR.instance.graphicsAPI;
+			tex.eType = SteamVR.instance.textureType;
 			tex.eColorSpace = EColorSpace.Auto;
             overlay.SetOverlayTexture(handle, ref tex);
 
